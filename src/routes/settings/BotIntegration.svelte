@@ -11,11 +11,13 @@
 	import Select from '$lib/components/Select.svelte';
 	import {
 		BOT_TOOLS,
+		botWarningLabels,
 		CONTEXT_COUNT_MAX,
 		CONTEXT_COUNT_MIN,
 		isRunnable,
 		POLL_SECONDS_MAX,
 		POLL_SECONDS_MIN,
+		type BotWarning,
 		type IntegrationView
 	} from '$lib/integrations';
 	import { personasStore, settingsStore } from '$lib/localStorage';
@@ -39,7 +41,12 @@
 		onChange: () => void;
 		onSecret: (value: string) => void;
 		onDelete: () => void;
-		onVerify: () => Promise<{ ok: boolean; detail?: string; error?: string }>;
+		onVerify: () => Promise<{
+			ok: boolean;
+			detail?: string;
+			error?: string;
+			warnings?: BotWarning[];
+		}>;
 	}
 
 	let {
@@ -57,7 +64,14 @@
 	let showAdvanced = $state(false);
 	let replacingKey = $state(false);
 	let verifying = $state(false);
-	let verdict = $state<{ ok: boolean; detail?: string; error?: string } | null>(null);
+	let verdict = $state<{
+		ok: boolean;
+		detail?: string;
+		error?: string;
+		warnings?: BotWarning[];
+	} | null>(null);
+
+	const warningText = $derived(botWarningLabels($LL));
 
 	/** A stored key is never returned, so an empty password field would read as "none". */
 	const keyIsStored = $derived(integration.hasSecret && !secret && !replacingKey);
@@ -237,6 +251,12 @@
 		<!-- Failures keep their own line: a server says why in a sentence. -->
 		{#if verdict && !verdict.ok}
 			<span class="text-negative text-xs">{verdict.error}</span>
+		{:else if verdict?.warnings?.length}
+			<ul class="text-warning flex flex-col gap-1 text-xs leading-snug">
+				{#each verdict.warnings as warning (warning)}
+					<li>{warningText[warning]}</li>
+				{/each}
+			</ul>
 		{/if}
 	</SettingsField>
 
@@ -304,6 +324,7 @@
 				]}
 				onChange={(option) => {
 					integration.config.context = option.value as typeof integration.config.context;
+					invalidate();
 					onChange();
 				}}
 			/>
@@ -337,6 +358,7 @@
 			]}
 			onChange={(option) => {
 				integration.config.placement = option.value as typeof integration.config.placement;
+				invalidate();
 				onChange();
 			}}
 		/>

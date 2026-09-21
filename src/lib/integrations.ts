@@ -1,3 +1,5 @@
+import type { TranslationFunctions } from '$i18n/i18n-types';
+
 /**
  * Bots living outside Llooma, and what each is configured to be.
  *
@@ -51,6 +53,21 @@ export type Placement =
 export const BOT_TOOLS = ['webSearch', 'webFetch', 'sendCurrentDate', 'thinking', 'mcp'] as const;
 
 export type BotTool = (typeof BOT_TOOLS)[number];
+
+/** What a connection test found missing: the key works, but part of what the bot is configured to do will fail without a word. */
+export type BotWarning =
+	'cannotPost' | 'cannotRead' | 'cannotPostInThread' | 'recentNeedsFullRead' | 'cannotReact';
+
+/** Translated in one place, for the card and for the toast that follows adding a bot. */
+export function botWarningLabels(LL: TranslationFunctions): Record<BotWarning, string> {
+	return {
+		cannotPost: LL.botWarningCannotPost(),
+		cannotRead: LL.botWarningCannotRead(),
+		recentNeedsFullRead: LL.botWarningRecentNeedsFullRead(),
+		cannotPostInThread: LL.botWarningCannotPostInThread(),
+		cannotReact: LL.botWarningCannotReact()
+	};
+}
 
 /**
  * How many bots one account may run, and how many answers an hour across all of

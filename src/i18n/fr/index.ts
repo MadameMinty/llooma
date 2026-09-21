@@ -52,6 +52,15 @@ const fr = extendDictionary(en, {
 	usePersonaPromptHint:
 		'Seul le prompt du persona est utilisé. Ni mémoire, ni conversation de bibliothèque, ni connaissances.',
 	botNeedsAModel: 'Choisissez un modèle : ce bot ne peut pas tourner sans.',
+	botWarningCannotPost: 'Il ne peut rien écrire : accordez-lui message.post.',
+	botWarningCannotRead:
+		"Il ne peut rien lire : accordez-lui message.read, ou message.read-interactions pour les fils où on l'appelle.",
+	botWarningRecentNeedsFullRead:
+		'Il ne voit que les fils : lire les messages qui précèdent une mention dans un salon demande message.read.',
+	botWarningCannotPostInThread:
+		'Il ne peut pas répondre dans les fils : accordez-lui message.post-in-thread, ou répondez dans le salon.',
+	botWarningCannotReact:
+		"Il ne peut pas réagir, donc rien ne montre qu'il a vu un message : accordez-lui message.react.",
 	allowUserIntegrations: 'Les utilisateurs peuvent avoir leurs propres bots',
 	botAllowed: 'Autorisé sur cette instance',
 	offByItsOwner: 'désactivé par son propriétaire',

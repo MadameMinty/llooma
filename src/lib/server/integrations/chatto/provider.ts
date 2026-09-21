@@ -1,3 +1,4 @@
+import type { BotWarning } from '$lib/integrations';
 import type { Persona } from '$lib/personas';
 import { getPersonas } from '$lib/server/db/collections';
 import { botRepliesPerHour } from '$lib/server/db/config';
@@ -359,7 +360,8 @@ export const chattoProvider: IntegrationProvider = {
 		if (!token) return { ok: false, error: 'No API key stored' };
 
 		try {
-			const viewer = await new ChattoClient(record.config.baseUrl, token).getViewer();
+			const client = new ChattoClient(record.config.baseUrl, token);
+			const viewer = await client.getViewer();
 			const profile = viewer.user?.profile;
 			if (!profile?.id) return { ok: false, error: 'The server did not identify this key' };
 			if (!profile.bot) {
@@ -367,9 +369,44 @@ export const chattoProvider: IntegrationProvider = {
 				// person, answering their own mentions as them.
 				return { ok: false, error: 'This key belongs to a person, not to a bot account' };
 			}
-			return { ok: true, detail: profile.displayName || profile.login || profile.id };
+			return {
+				ok: true,
+				detail: profile.displayName || profile.login || profile.id,
+				warnings: await permissionWarnings(client, profile.id, record.config)
+			};
 		} catch (error) {
 			return { ok: false, error: describe(error) };
 		}
 	}
 };
+
+/**
+ * The three ways a bot looks configured and never answers, read from what Chatto
+ * says it may do. Room membership is not a permission and cannot be seen here.
+ * A failed read says nothing rather than something wrong.
+ */
+async function permissionWarnings(
+	client: ChattoClient,
+	botId: string,
+	config: IntegrationRecord['config']
+): Promise<BotWarning[]> {
+	let granted: Set<string>;
+	try {
+		const { permissions } = await client.listEffectivePermissions(botId);
+		granted = new Set((permissions ?? []).map((entry) => entry.permission));
+	} catch {
+		return [];
+	}
+
+	const warnings: BotWarning[] = [];
+	if (!granted.has('message.post')) warnings.push('cannotPost');
+	// `message.read` includes the narrow grant.
+	const fullRead = granted.has('message.read');
+	if (!fullRead && !granted.has('message.read-interactions')) warnings.push('cannotRead');
+	else if (!fullRead && config.context !== 'mention') warnings.push('recentNeedsFullRead');
+	if (config.placement !== 'room' && !granted.has('message.post-in-thread')) {
+		warnings.push('cannotPostInThread');
+	}
+	if (!granted.has('message.react')) warnings.push('cannotReact');
+	return warnings;
+}

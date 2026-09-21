@@ -1,4 +1,4 @@
-import type { IntegrationKind } from '$lib/integrations';
+import type { BotWarning, IntegrationKind } from '$lib/integrations';
 import type { IntegrationRecord } from '$lib/server/db/integrations';
 
 /** Three verbs, none of which knows what a Chatto is. Adding a second service is writing one of these and putting it in the registry. */
@@ -21,4 +21,6 @@ export interface TestResult {
 	detail?: string;
 	/** Why it did not, when it did not. Shown as-is. */
 	error?: string;
+	/** What works but is not allowed, when it worked. */
+	warnings?: BotWarning[];
 }

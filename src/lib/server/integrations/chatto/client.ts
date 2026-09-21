@@ -138,6 +138,18 @@ export class ChattoClient {
 		return this.#call('chatto.api.v1.ViewerService/GetViewer', {}, signal);
 	}
 
+	/** Everything this account may do, with the owner's ceiling applied, in one read. A bot may read its own. */
+	async listEffectivePermissions(
+		userId: string,
+		signal?: AbortSignal
+	): Promise<{ permissions?: { permission: string }[] }> {
+		return this.#call(
+			'chatto.api.v1.PermissionService/ListEffectivePermissions',
+			{ userId },
+			signal
+		);
+	}
+
 	/** A latest-value list, newest first, not a queue: the same occurrence comes back on every call until it ages out, which is why the caller claims each one first. */
 	async listNotificationOccurrences(
 		limit: number,

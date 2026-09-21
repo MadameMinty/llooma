@@ -44,6 +44,15 @@ const en = {
 	usePersonaPromptHint:
 		'Only the persona prompt is used. No memory, no library conversation, no knowledge.',
 	botNeedsAModel: 'Choose a model: this bot cannot run without one.',
+	botWarningCannotPost: 'It may not post anything: grant it message.post.',
+	botWarningCannotRead:
+		'It may not read anything: grant it message.read, or message.read-interactions for the threads it is called into.',
+	botWarningRecentNeedsFullRead:
+		'It only sees threads: reading the messages before a mention in a room needs message.read.',
+	botWarningCannotPostInThread:
+		'It may not answer in threads: grant it message.post-in-thread, or answer in the room.',
+	botWarningCannotReact:
+		'It cannot react, so nothing shows it has seen a message: grant it message.react.',
 	allowUserIntegrations: 'Users can run their own bots',
 	botAllowed: 'Allowed on this instance',
 	offByItsOwner: 'switched off by its owner',

@@ -172,6 +172,26 @@ type RootTranslation = {
 	 */
 	botNeedsAModel: string
 	/**
+	 * I​t​ ​m​a​y​ ​n​o​t​ ​p​o​s​t​ ​a​n​y​t​h​i​n​g​:​ ​g​r​a​n​t​ ​i​t​ ​m​e​s​s​a​g​e​.​p​o​s​t​.
+	 */
+	botWarningCannotPost: string
+	/**
+	 * I​t​ ​m​a​y​ ​n​o​t​ ​r​e​a​d​ ​a​n​y​t​h​i​n​g​:​ ​g​r​a​n​t​ ​i​t​ ​m​e​s​s​a​g​e​.​r​e​a​d​,​ ​o​r​ ​m​e​s​s​a​g​e​.​r​e​a​d​-​i​n​t​e​r​a​c​t​i​o​n​s​ ​f​o​r​ ​t​h​e​ ​t​h​r​e​a​d​s​ ​i​t​ ​i​s​ ​c​a​l​l​e​d​ ​i​n​t​o​.
+	 */
+	botWarningCannotRead: string
+	/**
+	 * I​t​ ​o​n​l​y​ ​s​e​e​s​ ​t​h​r​e​a​d​s​:​ ​r​e​a​d​i​n​g​ ​t​h​e​ ​m​e​s​s​a​g​e​s​ ​b​e​f​o​r​e​ ​a​ ​m​e​n​t​i​o​n​ ​i​n​ ​a​ ​r​o​o​m​ ​n​e​e​d​s​ ​m​e​s​s​a​g​e​.​r​e​a​d​.
+	 */
+	botWarningRecentNeedsFullRead: string
+	/**
+	 * I​t​ ​m​a​y​ ​n​o​t​ ​a​n​s​w​e​r​ ​i​n​ ​t​h​r​e​a​d​s​:​ ​g​r​a​n​t​ ​i​t​ ​m​e​s​s​a​g​e​.​p​o​s​t​-​i​n​-​t​h​r​e​a​d​,​ ​o​r​ ​a​n​s​w​e​r​ ​i​n​ ​t​h​e​ ​r​o​o​m​.
+	 */
+	botWarningCannotPostInThread: string
+	/**
+	 * I​t​ ​c​a​n​n​o​t​ ​r​e​a​c​t​,​ ​s​o​ ​n​o​t​h​i​n​g​ ​s​h​o​w​s​ ​i​t​ ​h​a​s​ ​s​e​e​n​ ​a​ ​m​e​s​s​a​g​e​:​ ​g​r​a​n​t​ ​i​t​ ​m​e​s​s​a​g​e​.​r​e​a​c​t​.
+	 */
+	botWarningCannotReact: string
+	/**
 	 * U​s​e​r​s​ ​c​a​n​ ​r​u​n​ ​t​h​e​i​r​ ​o​w​n​ ​b​o​t​s
 	 */
 	allowUserIntegrations: string
@@ -4528,6 +4548,26 @@ export type TranslationFunctions = {
 	 * Choose a model: this bot cannot run without one.
 	 */
 	botNeedsAModel: () => LocalizedString
+	/**
+	 * It may not post anything: grant it message.post.
+	 */
+	botWarningCannotPost: () => LocalizedString
+	/**
+	 * It may not read anything: grant it message.read, or message.read-interactions for the threads it is called into.
+	 */
+	botWarningCannotRead: () => LocalizedString
+	/**
+	 * It only sees threads: reading the messages before a mention in a room needs message.read.
+	 */
+	botWarningRecentNeedsFullRead: () => LocalizedString
+	/**
+	 * It may not answer in threads: grant it message.post-in-thread, or answer in the room.
+	 */
+	botWarningCannotPostInThread: () => LocalizedString
+	/**
+	 * It cannot react, so nothing shows it has seen a message: grant it message.react.
+	 */
+	botWarningCannotReact: () => LocalizedString
 	/**
 	 * Users can run their own bots
 	 */

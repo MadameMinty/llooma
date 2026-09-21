@@ -11,10 +11,12 @@
 	import {
 		BOT_REPLIES_PER_HOUR_MAX,
 		BOTS_PER_USER_MAX,
+		botWarningLabels,
 		DEFAULT_BOT_REPLIES_PER_HOUR,
 		DEFAULT_BOTS_PER_USER,
 		defaultConfig,
 		INTEGRATION_KINDS,
+		type BotWarning,
 		type IntegrationKind,
 		type IntegrationView
 	} from '$lib/integrations';
@@ -136,15 +138,16 @@
 		try {
 			// Checked before it is stored, so a wrong key is a message rather than a card
 			// failing quietly in a log nobody reads.
-			const verdict = await api<{ ok: boolean; detail?: string; error?: string }>(
-				'/api/integrations/verify',
-				'POST',
-				{
-					kind: chosen,
-					secret: draft.secret,
-					config: { ...defaultConfig(chosen), baseUrl: draft.baseUrl }
-				}
-			);
+			const verdict = await api<{
+				ok: boolean;
+				detail?: string;
+				error?: string;
+				warnings?: BotWarning[];
+			}>('/api/integrations/verify', 'POST', {
+				kind: chosen,
+				secret: draft.secret,
+				config: { ...defaultConfig(chosen), baseUrl: draft.baseUrl }
+			});
 			if (!verdict?.ok) {
 				toast.error($LL.connectionFailed(), { description: verdict?.error });
 				return;
@@ -165,6 +168,11 @@
 			}
 			resetDraft();
 			toast.success($LL.connectedAsBot({ name: verdict.detail ?? '' }));
+			// The card opens on arrival with an empty verdict, so what the test found goes here.
+			if (verdict.warnings?.length) {
+				const text = botWarningLabels($LL);
+				toast.warning(verdict.warnings.map((warning) => text[warning]).join('\n'));
+			}
 		} catch {
 			// `api()` has already said what went wrong.
 		} finally {
@@ -199,7 +207,7 @@
 	async function verify(integration: IntegrationView) {
 		const typed = secrets[integration.id];
 		return (
-			(await api<{ ok: boolean; detail?: string; error?: string }>(
+			(await api<{ ok: boolean; detail?: string; error?: string; warnings?: BotWarning[] }>(
 				'/api/integrations/verify',
 				'POST',
 				{

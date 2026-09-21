@@ -51,7 +51,8 @@ answers:
   answer in it.
 
 Then, in Llooma: _Add an integration_, paste the address and the key, and the connection is checked
-before anything is saved. The bot is enabled on arrival, but it does not run until you choose a
+before anything is saved. The check also reads what the bot may do, and says which of the permissions
+above the options you chose are missing. Membership is the one thing it cannot see. The bot is enabled on arrival, but it does not run until you choose a
 model, and the card says so.
 
 Nothing needs to reach Llooma from the outside. There is no webhook to configure, no public address
