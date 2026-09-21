@@ -1,9 +1,8 @@
 import { env as privateEnv } from '$env/dynamic/private';
 import { env as publicEnv } from '$env/dynamic/public';
 import { getConfig } from '$lib/server/db/config';
+import type { Sharing } from '$lib/server/sharing';
 import type { Settings } from '$lib/settings';
-
-export type SearchSharing = 'off' | 'locked' | 'overridable';
 
 export interface ResolvedSearch {
 	url: string;
@@ -49,7 +48,7 @@ export function resolveSearch(userSettings: Settings | null, isAdmin: boolean): 
 		return { ...own, editable: true, source: 'user', adminUrl: '', adminBackend: '' };
 	}
 
-	const sharing = (getConfig('searchSharing') as SearchSharing) || 'off';
+	const sharing = (getConfig('searchSharing') as Sharing) || 'off';
 	const admin = {
 		url: getConfig('searchUrl') || '',
 		backend: getConfig('searchBackend') || 'degoog',

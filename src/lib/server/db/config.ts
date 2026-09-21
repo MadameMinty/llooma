@@ -4,6 +4,7 @@ import {
 	DEFAULT_BOT_REPLIES_PER_HOUR,
 	DEFAULT_BOTS_PER_USER
 } from '$lib/integrations';
+import type { Sharing } from '$lib/server/sharing';
 
 import { getDb } from './index';
 
@@ -137,8 +138,6 @@ export function setStoreUrl(value: string): void {
 }
 
 /** `off` leaves everyone their own, `overridable` sets what a new account starts on, `locked` fixes it and the theme controls go away. */
-export type ThemeSharing = 'off' | 'locked' | 'overridable';
-
 /** On unless an admin says otherwise, and total rather than a default: off means no tools offered and nothing written. What was already remembered is left alone, since a toggle should not delete an account's most personal data. */
 export function personaMemoryEnabled(): boolean {
 	return getConfig('personaMemoryEnabled') !== 'false';
@@ -148,7 +147,7 @@ export function setPersonaMemoryEnabled(value: boolean): void {
 	setConfig('personaMemoryEnabled', value ? 'true' : 'false');
 }
 
-export function themeSharing(): ThemeSharing {
+export function themeSharing(): Sharing {
 	const value = getConfig('themeSharing');
 	return value === 'locked' || value === 'overridable' ? value : 'off';
 }

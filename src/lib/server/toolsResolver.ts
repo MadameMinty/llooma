@@ -1,4 +1,5 @@
 import { getConfig } from '$lib/server/db/config';
+import type { Sharing } from '$lib/server/sharing';
 import type { Settings } from '$lib/settings';
 
 /**
@@ -9,8 +10,6 @@ import type { Settings } from '$lib/settings';
  * browser is never asked and never believed. The shared models and the locked
  * prompt are policed the same way, in `llmPolicy`.
  */
-
-export type ToolsSharing = 'off' | 'locked' | 'overridable';
 
 export const WEB_FETCH_DEFAULTS = { maxPages: 3, maxChars: 20_000 };
 /** Ceilings a user's own settings can't exceed, whatever the client sends. */
@@ -66,7 +65,7 @@ export function resolveTools(userSettings: Settings | null, isAdmin: boolean): R
 
 	if (isAdmin) return { ...own, editable: true, source: 'user' };
 
-	const sharing = (getConfig('webFetchSharing') as ToolsSharing) || 'off';
+	const sharing = (getConfig('webFetchSharing') as Sharing) || 'off';
 	if (sharing === 'off') return { ...own, editable: true, source: 'user' };
 
 	const admin = adminTools();

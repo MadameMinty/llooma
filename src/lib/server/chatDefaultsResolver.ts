@@ -1,8 +1,7 @@
 import { parseSamplingOptions, type SamplingOptions } from '$lib/chat/options';
 import { getConfig } from '$lib/server/db/config';
+import type { Sharing } from '$lib/server/sharing';
 import { DEFAULT_SETTINGS, type Settings } from '$lib/settings';
-
-export type Sharing = 'off' | 'locked' | 'overridable';
 
 export interface ResolvedChatDefaults {
 	defaultModel: {

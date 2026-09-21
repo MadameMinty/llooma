@@ -1,3 +1,5 @@
+import { setTimeout } from 'node:timers/promises';
+
 import { costLookupFor, modelKind, speechFor, type ConnectionType } from '$lib/connections';
 import { getModelKinds, getServerApiKey, type ServerRow } from '$lib/server/db/servers';
 import { wavFromPcm } from '$lib/server/wav';
@@ -250,7 +252,7 @@ export async function askWhatItCost(
 	const headers: Record<string, string> = key ? { authorization: `Bearer ${key}` } : {};
 
 	for (const wait of COST_RETRIES) {
-		await new Promise((resolve) => setTimeout(resolve, wait));
+		await setTimeout(wait);
 
 		try {
 			const response = await fetch(url, { headers, signal: AbortSignal.timeout(10_000) });

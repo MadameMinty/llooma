@@ -1,3 +1,5 @@
+import { setTimeout } from 'node:timers/promises';
+
 import { modelKind, transcriptionFor, type ConnectionType } from '$lib/connections';
 import { getModelKinds, getServerApiKey, type ServerRow } from '$lib/server/db/servers';
 import type { RunUsage } from '$lib/usageCounts';
@@ -31,8 +33,6 @@ const AUDIO_TYPES = ['audio/webm', 'audio/ogg', 'audio/mp4', 'audio/mpeg', 'audi
 /** Long enough for a minute of speech on a busy queue, short enough that a job nobody will answer stops holding a request open. */
 const POLL_INTERVAL_MS = 1_500;
 const POLL_CEILING_MS = 90_000;
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export async function transcribe(
 	server: ServerRow,
@@ -91,7 +91,7 @@ export async function transcribe(
 	const deadline = Date.now() + POLL_CEILING_MS;
 	let last = '';
 	while (Date.now() < deadline) {
-		await sleep(POLL_INTERVAL_MS);
+		await setTimeout(POLL_INTERVAL_MS);
 
 		let poll: Response;
 		try {
