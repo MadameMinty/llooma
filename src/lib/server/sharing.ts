@@ -16,8 +16,8 @@ export interface Shared<T> {
 	value: T;
 	/** Whether this person may change it. */
 	editable: boolean;
-	/** Whose value `value` is. `none` never occurs here; kept for callers that report it. */
-	source: 'admin' | 'user' | 'none';
+	/** Whose value `value` is. */
+	source: 'admin' | 'user';
 	/** Whether an admin is sharing at all, i.e. whether to say so in the UI. */
 	shared: boolean;
 	/** The admin's snapshot, for the overridable default and for "restore". */

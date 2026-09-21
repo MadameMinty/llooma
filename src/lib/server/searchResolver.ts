@@ -1,7 +1,7 @@
 import { env as privateEnv } from '$env/dynamic/private';
 import { env as publicEnv } from '$env/dynamic/public';
 import { getConfig } from '$lib/server/db/config';
-import type { Sharing } from '$lib/server/sharing';
+import { resolveShared, type Sharing } from '$lib/server/sharing';
 import type { Settings } from '$lib/settings';
 
 export interface ResolvedSearch {
@@ -43,40 +43,30 @@ export function resolveSearch(userSettings: Settings | null, isAdmin: boolean): 
 		};
 	}
 
-	// Admins always edit their own config; sharing is decided separately.
-	if (isAdmin) {
-		return { ...own, editable: true, source: 'user', adminUrl: '', adminBackend: '' };
-	}
-
-	const sharing = (getConfig('searchSharing') as Sharing) || 'off';
 	const admin = {
 		url: getConfig('searchUrl') || '',
 		backend: getConfig('searchBackend') || 'degoog',
 		token: getConfig('searchToken') || ''
 	};
+	// Anything but a recognised sharing mode, or sharing without an address, shares
+	// nothing: each user keeps their own.
+	const mode = getConfig('searchSharing');
+	const sharing: Sharing =
+		admin.url && (mode === 'locked' || mode === 'overridable') ? mode : 'off';
+	const shared = resolveShared({
+		own,
+		admin: () => admin,
+		empty: { url: '', backend: '', token: '' },
+		sharing,
+		isAdmin,
+		hasContent: (value) => !!value.url
+	});
 
-	if (sharing === 'locked' && admin.url) {
-		return {
-			...admin,
-			editable: false,
-			source: 'admin',
-			adminUrl: admin.url,
-			adminBackend: admin.backend
-		};
-	}
-
-	if (sharing === 'overridable' && admin.url) {
-		return own.url
-			? { ...own, editable: true, source: 'user', adminUrl: admin.url, adminBackend: admin.backend }
-			: {
-					...admin,
-					editable: true,
-					source: 'admin',
-					adminUrl: admin.url,
-					adminBackend: admin.backend
-				};
-	}
-
-	// Not shared: each user configures their own.
-	return { ...own, editable: true, source: 'user', adminUrl: '', adminBackend: '' };
+	return {
+		...shared.value,
+		editable: shared.editable,
+		source: shared.source,
+		adminUrl: shared.adminValue.url,
+		adminBackend: shared.adminValue.backend
+	};
 }
