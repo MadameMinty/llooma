@@ -70,7 +70,9 @@
 
 	async function load() {
 		try {
-			const config = await api<{ canManage: boolean; limit: number }>('/api/mcp/config', 'GET');
+			const config = (
+				await api<{ mcp: { canManage: boolean; limit: number } }>('/api/config', 'GET')
+			)?.mcp;
 			canManage = config?.canManage ?? false;
 			limit = config?.limit ?? MCP_LIMITS.perUser;
 

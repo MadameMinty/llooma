@@ -2,6 +2,7 @@ import { derived, writable } from 'svelte/store';
 
 import { parseSamplingOptions, type SamplingOptions } from '$lib/chat/options';
 import { settingsStore } from '$lib/localStorage';
+import type { ServerConfig } from '$lib/serverConfig';
 import { DEFAULT_SETTINGS } from '$lib/settings';
 
 export interface ChatDefaultsView {
@@ -65,13 +66,8 @@ export interface ChatDefaultsView {
 
 const serverConfig = writable<ChatDefaultsView | null>(null);
 
-export async function loadServerChatDefaults(): Promise<void> {
-	try {
-		const response = await fetch('/api/chat-defaults/config');
-		if (response.ok) serverConfig.set(await response.json());
-	} catch {
-		/* leave null */
-	}
+export function applyServerChatDefaults(config: ServerConfig | null): void {
+	if (config) serverConfig.set(config.chatDefaults);
 }
 
 /** The effective, reactive chat defaults (default model + title) for the user. */

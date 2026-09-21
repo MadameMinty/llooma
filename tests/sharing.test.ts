@@ -23,11 +23,11 @@ test('publishes the instance sampling settings', async ({ page }) => {
 	// The instance now answers with them, which is what every reader reads.
 	await expect
 		.poll(async () => {
-			const config = await page.request.get('/api/chat-defaults/config');
-			const defaults = (await config.json()) as {
-				sampling: { adminValue: Record<string, unknown> };
+			const config = await page.request.get('/api/config');
+			const { chatDefaults } = (await config.json()) as {
+				chatDefaults: { sampling: { adminValue: Record<string, unknown> } };
 			};
-			return defaults.sampling.adminValue.temperature;
+			return chatDefaults.sampling.adminValue.temperature;
 		})
 		.toBe(0.4);
 });

@@ -16,7 +16,7 @@
 	import { goto, onNavigate } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page, updated } from '$app/stores';
-	import { loadServerChatDefaults } from '$lib/chatDefaults';
+	import { applyServerChatDefaults } from '$lib/chatDefaults';
 	import CollapsibleSidebar from '$lib/components/CollapsibleSidebar.svelte';
 	import ConfirmDialog from '$lib/components/ConfirmDialog.svelte';
 	import KnowledgeModal from '$lib/components/KnowledgeModal.svelte';
@@ -32,21 +32,22 @@
 		shouldOfferInstall,
 		type PwaInstallDialog
 	} from '$lib/install';
-	import { loadIntegrationsConfig } from '$lib/integrationsConfig';
+	import { applyIntegrationsConfig } from '$lib/integrationsConfig';
 	import { hydrateStores, refreshStores, sessionsStore, settingsStore } from '$lib/localStorage';
-	import { loadMcpConfig } from '$lib/mcpConfig';
-	import { loadServerPersonas } from '$lib/personasConfig';
-	import { loadServerPlaybooks } from '$lib/playbooksConfig';
-	import { loadServerSearch } from '$lib/search';
+	import { applyMcpConfig } from '$lib/mcpConfig';
+	import { applyServerPersonas } from '$lib/personasConfig';
+	import { applyServerPlaybooks } from '$lib/playbooksConfig';
+	import { applyServerSearch } from '$lib/search';
+	import { fetchServerConfig } from '$lib/serverConfig';
 	import { currentRole, currentUser } from '$lib/stores/auth';
 	import { setInstanceConfig } from '$lib/stores/instance';
 	import { openSearch, searchModalOpen, searchModalQuery, welcomeOpen } from '$lib/stores/modal';
 	import { mobileDrawerOpen } from '$lib/stores/sidebar';
-	import { loadServerPrompts } from '$lib/systemPrompts';
+	import { applyServerPrompts } from '$lib/systemPrompts';
 	import { toast } from '$lib/toast';
 	import { checkForUpdates, updateStatusStore } from '$lib/updates';
 	import { wallpaperImage } from '$lib/wallpapers';
-	import { loadWebFetchConfig } from '$lib/webFetch';
+	import { applyWebFetchConfig } from '$lib/webFetch';
 
 	import type { LayoutData } from './$types';
 	import SettingsModal from './settings/SettingsModal.svelte';
@@ -300,18 +301,15 @@
 	onMount(async () => {
 		// Fill the stores from the repository.
 		await hydrateStores();
-		// In parallel: each answers a different endpoint and fills a store of its own,
-		// so in sequence they only added up to eight round trips before the app was usable.
-		await Promise.all([
-			loadServerSearch(),
-			loadWebFetchConfig(),
-			loadServerPrompts(),
-			loadServerChatDefaults(),
-			loadServerPersonas(),
-			loadIntegrationsConfig(),
-			loadMcpConfig(),
-			loadServerPlaybooks()
-		]);
+		const config = await fetchServerConfig();
+		applyServerSearch(config);
+		applyWebFetchConfig(config);
+		applyServerPrompts(config);
+		applyServerChatDefaults(config);
+		applyServerPersonas(config);
+		applyIntegrationsConfig(config);
+		applyMcpConfig(config);
+		applyServerPlaybooks(config);
 		// Small by construction: the pictures themselves are fetched one at a time by
 		// the page that shows them.
 		await loadImages();

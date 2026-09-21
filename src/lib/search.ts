@@ -1,6 +1,7 @@
 import { derived, writable } from 'svelte/store';
 
 import { env } from '$env/dynamic/public';
+import type { ServerConfig } from '$lib/serverConfig';
 
 const envUrl = env.PUBLIC_SEARCH_URL?.trim() || '';
 const envBackend = env.PUBLIC_SEARCH_BACKEND?.trim() || 'degoog';
@@ -19,14 +20,9 @@ export interface SearchView {
 // The resolved config comes from the server, which is where admin sharing lives.
 const serverSearch = writable<Omit<SearchView, 'available'> | null>(null);
 
-export async function loadServerSearch(): Promise<void> {
-	if (envUrl) return;
-	try {
-		const response = await fetch('/api/search/config');
-		if (response.ok) serverSearch.set(await response.json());
-	} catch {
-		/* leave null */
-	}
+export function applyServerSearch(config: ServerConfig | null): void {
+	if (envUrl || !config) return;
+	serverSearch.set(config.search);
 }
 
 /** The effective, reactive search config for the current user. */

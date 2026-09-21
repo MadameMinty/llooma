@@ -149,13 +149,17 @@ paths:
       summary: Remove a user and everything they wrote
       responses:
         '204': { description: Deleted. }
-  /api/chat-defaults/config:
+  /api/config:
     get:
-      tags: [chat-defaults]
-      summary: TODO
-      x-status: todo
+      tags: [config]
+      summary: Every per-account policy the interface reads, in one round trip
       responses:
-        '200': { description: TODO }
+        '200':
+          description: >-
+            One section per concern: search, webFetch, prompts, chatDefaults, personas,
+            playbooks, integrations and mcp.
+          content:
+            application/json: { schema: { type: object } }
   /api/data/{collection}:
     parameters:
       - name: collection
@@ -222,13 +226,6 @@ paths:
       x-status: todo
       responses:
         '200': { description: TODO }
-  /api/fetch/config:
-    get:
-      tags: [fetch]
-      summary: TODO
-      x-status: todo
-      responses:
-        '200': { description: TODO }
   /api/llm/{serverId}/{path}:
     parameters:
       - name: serverId
@@ -277,15 +274,6 @@ paths:
       responses:
         '200':
           description: The store's listing, or one persona or playbook bundle, verbatim.
-          content:
-            application/json: { schema: { type: object } }
-  /api/playbooks/config:
-    get:
-      tags: [playbooks]
-      summary: The playbooks this instance publishes
-      responses:
-        '200':
-          description: The instance's playbooks and whether they are locked.
           content:
             application/json: { schema: { type: object } }
   /api/admin/playbooks:
@@ -470,13 +458,6 @@ paths:
           description: The period, the spend, the ceiling and thirty days of history.
           content:
             application/json: { schema: { type: object } }
-  /api/personas/config:
-    get:
-      tags: [personas]
-      summary: TODO
-      x-status: todo
-      responses:
-        '200': { description: TODO }
   /api/providers:
     get:
       tags: [providers]
@@ -569,13 +550,6 @@ paths:
         A finished run replays its log and closes.
       responses:
         '200': { description: A text/event-stream of run events. }
-  /api/search/config:
-    get:
-      tags: [search]
-      summary: TODO
-      x-status: todo
-      responses:
-        '200': { description: TODO }
   /api/search/sessions:
     get:
       tags: [search]
@@ -612,13 +586,6 @@ paths:
     post:
       tags: [servers]
       summary: TODO
-      x-status: todo
-      responses:
-        '200': { description: TODO }
-  /api/prompts/config:
-    get:
-      tags: [prompts]
-      summary: The system prompt and the app's own instructions, resolved for the caller
       x-status: todo
       responses:
         '200': { description: TODO }
@@ -687,12 +654,6 @@ paths:
       responses:
         '200': { description: The outcome, whichever way it went. }
         '404': { description: No such server, or not the caller's. }
-  /api/mcp/config:
-    get:
-      tags: [mcp]
-      summary: Whether this account may add MCP servers, and how many
-      responses:
-        '200': { description: The permission and the ceiling. }
   /api/mcp/verify:
     post:
       tags: [mcp]

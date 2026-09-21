@@ -2,6 +2,7 @@ import { derived, get, writable } from 'svelte/store';
 
 import { playbooksStore } from '$lib/localStorage';
 import type { Playbook } from '$lib/playbooks';
+import { fetchServerConfig, type ServerConfig } from '$lib/serverConfig';
 
 /**
  * What this instance offers in playbooks, as the browser knows it.
@@ -35,13 +36,12 @@ const DEFAULT: PlaybooksConfig = {
 
 const serverPlaybooks = writable<PlaybooksConfig | null>(null);
 
+export function applyServerPlaybooks(config: ServerConfig | null): void {
+	if (config) serverPlaybooks.set(config.playbooks);
+}
+
 export async function loadServerPlaybooks(): Promise<void> {
-	try {
-		const response = await fetch('/api/playbooks/config');
-		if (response.ok) serverPlaybooks.set(await response.json());
-	} catch {
-		/* leave null */
-	}
+	applyServerPlaybooks(await fetchServerConfig());
 }
 
 export const playbooksConfig = derived(

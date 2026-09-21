@@ -2,6 +2,7 @@ import { derived, get, writable } from 'svelte/store';
 
 import { personasStore } from '$lib/localStorage';
 import type { Persona } from '$lib/personas';
+import { fetchServerConfig, type ServerConfig } from '$lib/serverConfig';
 
 export interface PersonasConfig {
 	/** Personas an admin has shared, offered to users to "install". */
@@ -40,13 +41,12 @@ const DEFAULT: PersonasConfig = {
 
 const serverPersonas = writable<PersonasConfig | null>(null);
 
+export function applyServerPersonas(config: ServerConfig | null): void {
+	if (config) serverPersonas.set(config.personas);
+}
+
 export async function loadServerPersonas(): Promise<void> {
-	try {
-		const response = await fetch('/api/personas/config');
-		if (response.ok) serverPersonas.set(await response.json());
-	} catch {
-		/* leave null */
-	}
+	applyServerPersonas(await fetchServerConfig());
 }
 
 /** The effective personas governance for the current user. */

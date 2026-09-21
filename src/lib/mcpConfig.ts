@@ -1,6 +1,7 @@
 import { derived, writable } from 'svelte/store';
 
 import { MCP_LIMITS } from '$lib/mcp';
+import type { ServerConfig } from '$lib/serverConfig';
 
 /** Read at boot like the other governance answers, because the composer's tool menu is drawn from it: a switch that appears a moment after the page is worse than its absence. */
 export interface McpConfig {
@@ -22,13 +23,9 @@ const DEFAULT: McpConfig = {
 
 const fromServer = writable<McpConfig | null>(null);
 
-export async function loadMcpConfig(): Promise<void> {
-	try {
-		const response = await fetch('/api/mcp/config');
-		if (response.ok) fromServer.set(await response.json());
-	} catch {
-		/* leave null, which reads as "nothing here" */
-	}
+/** Null leaves the store null, which reads as "nothing here". */
+export function applyMcpConfig(config: ServerConfig | null): void {
+	if (config) fromServer.set(config.mcp);
 }
 
 export const mcpConfig = derived(fromServer, ($server): McpConfig => $server ?? DEFAULT);

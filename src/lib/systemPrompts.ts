@@ -2,6 +2,7 @@ import { derived, writable } from 'svelte/store';
 
 import { setServerAppPrompts } from '$lib/appPrompts';
 import { settingsStore } from '$lib/localStorage';
+import type { ServerConfig } from '$lib/serverConfig';
 
 import type { SystemPrompts } from './settings';
 
@@ -20,17 +21,10 @@ export interface SystemPromptsView {
 // In server mode the resolved config comes from the server (admin sharing).
 const serverConfig = writable<SystemPromptsView | null>(null);
 
-/** Two screens' worth of one question (what does this instance let you say to the model), resolved by the same rules, so they arrive together rather than racing. */
-export async function loadServerPrompts(): Promise<void> {
-	try {
-		const response = await fetch('/api/prompts/config');
-		if (!response.ok) return;
-		const config = await response.json();
-		serverConfig.set(config.systemPrompts ?? null);
-		setServerAppPrompts(config.appPrompts ?? null);
-	} catch {
-		/* leave null */
-	}
+export function applyServerPrompts(config: ServerConfig | null): void {
+	if (!config) return;
+	serverConfig.set(config.prompts.systemPrompts ?? null);
+	setServerAppPrompts(config.prompts.appPrompts ?? null);
 }
 
 /** The effective, reactive system-prompts config for the current user. */

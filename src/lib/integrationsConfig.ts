@@ -1,6 +1,7 @@
 import { derived, writable } from 'svelte/store';
 
 import { DEFAULT_BOTS_PER_USER } from '$lib/integrations';
+import { fetchServerConfig, type ServerConfig } from '$lib/serverConfig';
 
 /** Read at boot rather than when the settings window opens, so the tab is either there or not from the first render. */
 export interface IntegrationsConfig {
@@ -21,13 +22,13 @@ const DEFAULT: IntegrationsConfig = {
 
 const fromServer = writable<IntegrationsConfig | null>(null);
 
+/** Null leaves the store null, which reads as "not allowed". */
+export function applyIntegrationsConfig(config: ServerConfig | null): void {
+	if (config) fromServer.set(config.integrations);
+}
+
 export async function loadIntegrationsConfig(): Promise<void> {
-	try {
-		const response = await fetch('/api/integrations/config');
-		if (response.ok) fromServer.set(await response.json());
-	} catch {
-		/* leave null, which reads as "not allowed" */
-	}
+	applyIntegrationsConfig(await fetchServerConfig());
 }
 
 export const integrationsConfig = derived(
