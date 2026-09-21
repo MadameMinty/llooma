@@ -11,7 +11,7 @@ import { normalizeSession, type SessionSummary } from '$lib/sessionShape';
 import { DEFAULT_SETTINGS, type Settings } from '$lib/settings';
 import { toast } from '$lib/toast';
 
-import { NotAuthenticatedError, type Backup, type DataRepository } from './repository';
+import { NotAuthenticatedError, type Backup } from './repository';
 
 type Collection =
 	'sessions' | 'knowledge' | 'personas' | 'playbooks' | 'persona-memory' | 'settings';
@@ -27,7 +27,7 @@ const DEBOUNCE_MS = 800;
  *
  * No `hydrate()`: the stores seed with defaults and the layout fills them.
  */
-export class ApiRepository implements DataRepository {
+export class ApiRepository {
 	/** Keyed by request URL, so each item debounces on its own. */
 	#timers = new Map<string, ReturnType<typeof setTimeout>>();
 	#pending = new Map<string, unknown>();
@@ -84,6 +84,14 @@ export class ApiRepository implements DataRepository {
 	async saveSettings(value: Settings): Promise<void> {
 		this.#schedule('/api/data/settings', value);
 	}
+	/**
+	 * Collections are written one item at a time.
+	 *
+	 * The whole array would describe a *value* where what happened is an
+	 * *operation*. A server given only the value infers removals from absence, so
+	 * every save becomes delete-everything-and-reinsert, and any client holding a
+	 * stale list silently erases what the others added.
+	 */
 	async saveSession(session: Session): Promise<void> {
 		this.#schedule(`/api/data/sessions/${session.id}`, session);
 	}
@@ -137,9 +145,8 @@ export class ApiRepository implements DataRepository {
 		await this.#put('/api/data/playbooks', value);
 	}
 
-	async saveServers(): Promise<void> {
-		// TODO (step 5): persist a user's personal servers.
-	}
+	/** Nothing to do: a connection is written through `/api/servers` by the screen that edits it, and the store only mirrors what that returned. */
+	async saveServers(): Promise<void> {}
 
 	async searchSessions(query: string, everything = false): Promise<ConversationResult[]> {
 		const response = await fetch(

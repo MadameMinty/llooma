@@ -141,8 +141,8 @@ const seed = {
 export const settingsStore = persistedStore<Settings>(seed.settings, DEFAULT_SETTINGS, (v) =>
 	repository.saveSettings(v)
 );
-export const serversStore = persistedStore<Server[]>(seed.servers, [], (v) =>
-	repository.saveServers(v)
+export const serversStore = persistedStore<Server[]>(seed.servers, [], () =>
+	repository.saveServers()
 );
 export const sessionsStore = collectionStore<Session, SessionSummary>(seed.sessions, {
 	save: (session) => repository.saveSession(session),
