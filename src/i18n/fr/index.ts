@@ -56,6 +56,9 @@ const fr = extendDictionary(en, {
 	botAttachmentsHint:
 		'Chaque pièce jointe est nommée au modèle, avec sa description. Les types cochés sont aussi envoyés : les images demandent un modèle qui voit, les documents sont lus sur ce serveur.',
 	botAttachmentDocuments: 'Documents (PDF, Word, tableurs, texte)',
+	botStreaming: "Afficher la réponse pendant qu'elle s'écrit",
+	botStreamingHint:
+		"Le bot poste ses premiers mots puis modifie le message au fil de l'écriture, toutes les deux secondes. Chatto marque le message comme modifié.",
 	botWarningCannotPost: 'Il ne peut rien écrire : accordez-lui message.post.',
 	botWarningCannotRead:
 		"Il ne peut rien lire : accordez-lui message.read, ou message.read-interactions pour les fils où on l'appelle.",

@@ -37,6 +37,8 @@ export interface TurnRequest {
 	messages: Message[];
 	/** Asked for rather than assumed, and granted only where the instance offers it: a bot promised web search on an instance with no search endpoint is worse off than one that knows it cannot. */
 	tools?: BotTool[];
+	/** Called with the answer so far each time it grows, for a caller that shows it while it is written. Not yet cleaned: the returned text is the one to keep. */
+	onText?: (text: string) => void;
 	signal?: AbortSignal;
 }
 
@@ -105,14 +107,24 @@ export async function runTurnOnce(request: TurnRequest): Promise<TurnResult> {
 	const deps = serverDeps(input, principal, { mcpUnattended: wanted.has('mcp') });
 
 	let text = '';
+	/** The round still being written, which becomes part of `text` when it finishes. */
+	let partial = '';
 	let usage: TurnResult['usage'];
 	let failure: string | null = null;
+
+	const joined = () => [text, partial].filter(Boolean).join('\n\n');
 
 	const collect = (event: RunEvent): void => {
 		// The finished message rather than the fragments: a turn can produce more than
 		// one round, and only the messages are what a reader would have seen.
-		if (event.type === 'message') text += (text ? '\n\n' : '') + event.message.content;
-		else if (event.type === 'usage') {
+		if (event.type === 'message') {
+			text += (text ? '\n\n' : '') + event.message.content;
+			partial = '';
+			request.onText?.(text);
+		} else if (event.type === 'content') {
+			partial += event.text;
+			request.onText?.(joined());
+		} else if (event.type === 'usage') {
 			usage = event.used;
 			// Counted here rather than by the caller, so a turn started from anywhere lands
 			// in the same meter. The bot spends real money on somebody's account.

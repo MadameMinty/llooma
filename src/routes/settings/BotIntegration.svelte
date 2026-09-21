@@ -5,6 +5,7 @@
 	import { toolLabels } from '$lib/chatTools';
 	import Button from '$lib/components/Button.svelte';
 	import ButtonConfirm from '$lib/components/ButtonConfirm.svelte';
+	import FieldCheckbox from '$lib/components/FieldCheckbox.svelte';
 	import ModelSelect from '$lib/components/ModelSelect.svelte';
 	import MultiSelect from '$lib/components/MultiSelect.svelte';
 	import NumberField from '$lib/components/NumberField.svelte';
@@ -385,6 +386,14 @@
 				invalidate();
 				onChange();
 			}}
+		/>
+	</SettingsField>
+
+	<SettingsField hint={$LL.botStreamingHint()}>
+		<FieldCheckbox
+			label={$LL.botStreaming()}
+			bind:checked={integration.config.streaming}
+			{onChange}
 		/>
 	</SettingsField>
 

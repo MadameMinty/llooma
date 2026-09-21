@@ -269,6 +269,24 @@ export class ChattoClient {
 	): Promise<{ message?: ChattoMessage }> {
 		return this.#call('chatto.api.v1.MessageService/CreateMessage', input, signal);
 	}
+
+	/** Replace a message's text. Chatto marks it edited, and an edit never rings a mention. */
+	async updateMessage(
+		roomId: string,
+		eventId: string,
+		body: string,
+		signal?: AbortSignal
+	): Promise<unknown> {
+		return this.#call(
+			'chatto.api.v1.MessageService/UpdateMessage',
+			{ roomId, eventId, body, updateMask: 'body' },
+			signal
+		);
+	}
+
+	async deleteMessage(roomId: string, eventId: string, signal?: AbortSignal): Promise<unknown> {
+		return this.#call('chatto.api.v1.MessageService/DeleteMessage', { roomId, eventId }, signal);
+	}
 }
 
 /** The cause carried by an occurrence, when it is one this integration acts on. */

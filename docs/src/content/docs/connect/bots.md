@@ -147,8 +147,10 @@ in the 0.x line; the notification list is ordinary JSON over the same API as eve
 seconds of delay is not what makes an assistant useful or useless, and the day it is, only that one
 file changes.
 
-Replies are posted whole. There is no streaming, so a long answer arrives at once rather than
-appearing word by word.
+Replies are posted whole by default. _Show the answer while it is written_ posts the first words
+instead and edits the message as the model goes, every two seconds: each edit is an event every
+member's client receives, and Chatto marks the message edited for good. An answer that fails halfway
+is deleted, so the room sees what it would have seen without streaming: nothing.
 
 The bot runs in the Llooma process, which means one process: an instance behind a load balancer
 would poll once per replica. That is the same limit generation already has, and it is fixed the same

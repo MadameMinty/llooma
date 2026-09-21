@@ -48,6 +48,9 @@ const en = {
 	botAttachmentsHint:
 		'Every attachment is named to the model, with its description. The ticked kinds are sent as well: images need a model that sees them, documents are read on this server.',
 	botAttachmentDocuments: 'Documents (PDF, Word, spreadsheets, text)',
+	botStreaming: 'Show the answer while it is written',
+	botStreamingHint:
+		'The bot posts its first words and edits the message as it goes, every two seconds. Chatto marks the message edited.',
 	botWarningCannotPost: 'It may not post anything: grant it message.post.',
 	botWarningCannotRead:
 		'It may not read anything: grant it message.read, or message.read-interactions for the threads it is called into.',

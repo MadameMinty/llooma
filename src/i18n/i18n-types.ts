@@ -184,6 +184,14 @@ type RootTranslation = {
 	 */
 	botAttachmentDocuments: string
 	/**
+	 * S​h​o​w​ ​t​h​e​ ​a​n​s​w​e​r​ ​w​h​i​l​e​ ​i​t​ ​i​s​ ​w​r​i​t​t​e​n
+	 */
+	botStreaming: string
+	/**
+	 * T​h​e​ ​b​o​t​ ​p​o​s​t​s​ ​i​t​s​ ​f​i​r​s​t​ ​w​o​r​d​s​ ​a​n​d​ ​e​d​i​t​s​ ​t​h​e​ ​m​e​s​s​a​g​e​ ​a​s​ ​i​t​ ​g​o​e​s​,​ ​e​v​e​r​y​ ​t​w​o​ ​s​e​c​o​n​d​s​.​ ​C​h​a​t​t​o​ ​m​a​r​k​s​ ​t​h​e​ ​m​e​s​s​a​g​e​ ​e​d​i​t​e​d​.
+	 */
+	botStreamingHint: string
+	/**
 	 * I​t​ ​m​a​y​ ​n​o​t​ ​p​o​s​t​ ​a​n​y​t​h​i​n​g​:​ ​g​r​a​n​t​ ​i​t​ ​m​e​s​s​a​g​e​.​p​o​s​t​.
 	 */
 	botWarningCannotPost: string
@@ -4572,6 +4580,14 @@ export type TranslationFunctions = {
 	 * Documents (PDF, Word, spreadsheets, text)
 	 */
 	botAttachmentDocuments: () => LocalizedString
+	/**
+	 * Show the answer while it is written
+	 */
+	botStreaming: () => LocalizedString
+	/**
+	 * The bot posts its first words and edits the message as it goes, every two seconds. Chatto marks the message edited.
+	 */
+	botStreamingHint: () => LocalizedString
 	/**
 	 * It may not post anything: grant it message.post.
 	 */

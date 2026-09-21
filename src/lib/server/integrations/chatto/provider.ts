@@ -14,7 +14,7 @@ import {
 	type ChattoOccurrence
 } from './client';
 import { buildContext } from './context';
-import { defuseMentions, split } from './text';
+import { LiveAnswer } from './live';
 
 /**
  * The bot itself: watch, answer, post.
@@ -242,6 +242,7 @@ class ChattoRuntime implements IntegrationRuntime {
 		const reference = referenceOf(occurrence)!;
 		const config = this.#record.config;
 		let stopTyping = () => {};
+		let answer: LiveAnswer | null = null;
 
 		try {
 			const messages = await buildContext(
@@ -257,6 +258,15 @@ class ChattoRuntime implements IntegrationRuntime {
 			}
 
 			stopTyping = this.#typing(reference);
+			answer = new LiveAnswer(
+				this.#client,
+				reference,
+				threadFor(config.placement, reference),
+				this.#signal,
+				// The message is the sign of life from then on.
+				() => stopTyping()
+			);
+			const live = config.streaming ? answer : null;
 
 			const { text } = await runTurnOnce({
 				userId: this.#record.ownerUserId,
@@ -265,17 +275,20 @@ class ChattoRuntime implements IntegrationRuntime {
 				systemPrompt: instructionsFor(this.#record),
 				messages,
 				tools: config.tools,
+				onText: live ? (partial) => live.update(partial) : undefined,
 				signal: this.#signal
 			});
 			if (!text) {
+				await answer.abandon();
 				this.#log('the model answered with nothing');
 				return;
 			}
 
-			await this.#post(reference, text);
+			await answer.finish(text);
 			this.#log(`answered with ${text.length} characters`);
 		} catch (error) {
 			if (this.#stopped) return;
+			await answer?.abandon();
 			// Said in the log, not in the room: a bot that posts its own stack traces into
 			// a family channel is worse than one that stays quiet.
 			console.error(`[integration ${this.#record.id}] could not answer:`, describe(error));
@@ -283,26 +296,6 @@ class ChattoRuntime implements IntegrationRuntime {
 			// Before the message lands, so the room never shows a bot still typing under an
 			// answer it has already read.
 			stopTyping();
-		}
-	}
-
-	async #post(reference: ChattoMessageReference, text: string): Promise<void> {
-		const threadRootEventId = threadFor(this.#record.config.placement, reference);
-
-		// Defused here rather than at the model: what is unsafe is posting it, and this
-		// is the only place that posts.
-		for (const [index, chunk] of split(defuseMentions(text)).entries()) {
-			await this.#client.createMessage(
-				{
-					roomId: reference.roomId,
-					body: chunk,
-					threadRootEventId,
-					// Only the first part carries the attribution, or the same reply arrow is drawn
-					// three times.
-					inReplyTo: index === 0 && !threadRootEventId ? reference.eventId : undefined
-				},
-				this.#signal
-			);
 		}
 	}
 }

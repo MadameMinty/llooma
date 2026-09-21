@@ -116,6 +116,8 @@ export interface ChattoConfig {
 	/** What the turn may reach for, limited by what the instance actually offers. */
 	tools: BotTool[];
 	attachments: BotAttachment[];
+	/** The answer shown while it is written, by editing the bot's message. Chatto marks each one edited. */
+	streaming: boolean;
 	pollSeconds: number;
 }
 
@@ -149,6 +151,7 @@ export function defaultChattoConfig(): ChattoConfig {
 		contextCount: CONTEXT_COUNT_DEFAULT,
 		tools: ['sendCurrentDate'],
 		attachments: ['images'],
+		streaming: false,
 		pollSeconds: POLL_SECONDS_DEFAULT
 	};
 }
@@ -201,6 +204,7 @@ export function normaliseConfig(kind: IntegrationKind, raw: unknown): Integratio
 		attachments: Array.isArray(input.attachments)
 			? BOT_ATTACHMENTS.filter((kind) => (input.attachments as string[]).includes(kind))
 			: base.attachments,
+		streaming: input.streaming === true,
 		pollSeconds: clampNumber(
 			input.pollSeconds,
 			POLL_SECONDS_MIN,
