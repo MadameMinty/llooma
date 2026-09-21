@@ -9,7 +9,9 @@
 	import MultiSelect from '$lib/components/MultiSelect.svelte';
 	import NumberField from '$lib/components/NumberField.svelte';
 	import Select from '$lib/components/Select.svelte';
+	import { documentsDisabledByInstance } from '$lib/documents';
 	import {
+		BOT_ATTACHMENTS,
 		BOT_TOOLS,
 		botWarningLabels,
 		CONTEXT_COUNT_MAX,
@@ -90,6 +92,16 @@
 			danger: tool === 'mcp',
 			hint: tool === 'mcp' ? $LL.botMcpWarning() : undefined
 		}))
+	);
+
+	/** Documents drop out of the list on an instance that reads none. */
+	const attachmentOptions = $derived(
+		BOT_ATTACHMENTS.filter((kind) => kind !== 'documents' || !documentsDisabledByInstance).map(
+			(kind) => ({
+				value: kind,
+				label: kind === 'images' ? $LL.images() : $LL.botAttachmentDocuments()
+			})
+		)
 	);
 
 	const personaOptions = $derived(
@@ -346,6 +358,18 @@
 				</div>
 			{/if}
 		</div>
+	</SettingsField>
+
+	<SettingsField label={$LL.botAttachments()} hint={$LL.botAttachmentsHint()}>
+		<MultiSelect
+			value={integration.config.attachments}
+			options={attachmentOptions}
+			placeholder={$LL.none()}
+			onChange={(value) => {
+				integration.config.attachments = value as typeof integration.config.attachments;
+				onChange();
+			}}
+		/>
 	</SettingsField>
 
 	<SettingsField label={$LL.whereToAnswer()}>

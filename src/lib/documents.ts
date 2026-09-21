@@ -73,11 +73,13 @@ async function loadParser(withOcr: boolean) {
 }
 
 /** Trim the parser's Markdown down to what is worth paying tokens for. */
-function tidy(markdown: string): string {
+export function tidyDocumentMarkdown(markdown: string): string {
 	return (
 		markdown
-			// An empty YAML block is emitted even when the document has no metadata.
-			.replace(/^---\s*\n---\s*\n/, '')
+			// A YAML block leads every document, empty or holding parser metadata such as
+			// `IsLinearized`, then bare separators. The title worth keeping is read apart.
+			.replace(/^---[ \t]*\n(?:[\s\S]*?\n)??---[ \t]*\n/, '')
+			.replace(/^(?:\s*---[ \t]*\n)+/, '')
 			// Table rules come out padded (`|  ---  |`), which buys nothing.
 			.replace(/^\|(\s*-{3,}\s*\|)+\s*$/gm, (row) => row.replace(/\s*---\s*/g, ' --- '))
 			.replace(/\n{3,}/g, '\n\n')
@@ -119,7 +121,7 @@ export async function extractDocument(
 		includeFormatting: false
 	});
 
-	const markdown = tidy(value ?? '');
+	const markdown = tidyDocumentMarkdown(value ?? '');
 	const pages = ast.metadata?.pages;
 	const title = typeof ast.metadata?.title === 'string' ? ast.metadata.title.trim() : '';
 

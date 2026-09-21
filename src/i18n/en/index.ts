@@ -44,6 +44,10 @@ const en = {
 	usePersonaPromptHint:
 		'Only the persona prompt is used. No memory, no library conversation, no knowledge.',
 	botNeedsAModel: 'Choose a model: this bot cannot run without one.',
+	botAttachments: 'Attachments read',
+	botAttachmentsHint:
+		'Every attachment is named to the model, with its description. The ticked kinds are sent as well: images need a model that sees them, documents are read on this server.',
+	botAttachmentDocuments: 'Documents (PDF, Word, spreadsheets, text)',
 	botWarningCannotPost: 'It may not post anything: grant it message.post.',
 	botWarningCannotRead:
 		'It may not read anything: grant it message.read, or message.read-interactions for the threads it is called into.',

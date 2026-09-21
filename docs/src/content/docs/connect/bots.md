@@ -91,6 +91,11 @@ single `user` read as one person contradicting themselves; with names in front, 
 room the way a person reading it would. The bot's own past messages are the exception, and become
 what they are.
 
+Attachments are named in the text, with the description their author gave them. Which ones are also
+sent is an option: images, for a model that sees them, and documents (PDF, Word, spreadsheets, text),
+read on the Llooma server and cut past forty thousand characters. The last four images and the last
+three documents in what is sent, no more.
+
 Two things worth knowing. Anything written after the message that called the bot is dropped, because
 answering a question with the replies to it already in hand is answering a different question. And
 reading the room before a mention needs `message.read`: the narrow permission covers threads, not

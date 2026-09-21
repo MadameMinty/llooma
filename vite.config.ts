@@ -63,9 +63,23 @@ export default defineConfig(({ command }) => ({
 						'cross-spawn',
 						'eventsource',
 						'eventsource-parser',
-						'pkce-challenge'
+						'pkce-challenge',
+						// Documents a bot reads, parsed on the server. Tesseract stays out: OCR is
+						// never asked for there, and its import only runs when it is.
+						'officeparser',
+						'pdfjs-dist',
+						'@xmldom/xmldom',
+						'fflate',
+						'file-type'
 					]
 				: []
+	},
+	build: {
+		rollupOptions: {
+			// officeparser's optional engines, reached only by dynamic imports this app
+			// never triggers: PDF generation and OCR. Left as imports rather than bundled.
+			external: ['puppeteer', 'tesseract.js']
+		}
 	},
 	preview: {
 		// Every host in preview mode, with the allowed list from the environment.

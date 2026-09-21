@@ -1,4 +1,6 @@
 import type { ChattoConfig } from '$lib/integrations';
+import { documentContextMessage } from '$lib/promptAttachments';
+import { extractDocumentText, isReadableDocument } from '$lib/server/documents';
 import type { Message } from '$lib/sessions';
 
 import {
@@ -25,6 +27,11 @@ const THREAD_LIMIT = 60;
 /** Read from the end backwards, since the useful case is somebody posting a picture and asking about it next. Capped because a room is not a form: nothing stops ten photographs in a row. */
 const MAX_IMAGES = 4;
 const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
+
+/** Same reading order as images. A document is the whole of its text, so fewer of them, and each cut to what a context window can carry beside the conversation. */
+const MAX_DOCUMENTS = 3;
+const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024;
+const MAX_DOCUMENT_CHARS = 40_000;
 
 interface Author {
 	name: string;
@@ -55,7 +62,7 @@ function messagesOf(events: ChattoTimelineEvent[] | undefined): ChattoMessage[] 
 		.map((event) => event.messagePosted?.message)
 		.filter(
 			(message): message is ChattoMessage =>
-				!!message?.body?.trim() || !!imageAttachments(message).length
+				!!message?.body?.trim() || !!message?.attachments?.length
 		);
 }
 
@@ -64,6 +71,67 @@ function imageAttachments(message: ChattoMessage | undefined): ChattoAttachment[
 	return (message?.attachments ?? []).filter(
 		(attachment) => attachment.contentType?.startsWith('image/') && attachment.assetUrl?.url
 	);
+}
+
+function documentAttachments(message: ChattoMessage | undefined): ChattoAttachment[] {
+	return (message?.attachments ?? []).filter(
+		(attachment) => isReadableDocument(attachment.filename ?? '') && attachment.assetUrl?.url
+	);
+}
+
+/**
+ * Each document's text, in the same envelope the composer uses, appended to the
+ * message that carried it. A file that fails to download or to parse is left as
+ * the line naming it: the model is told a file was there, not what it said.
+ */
+async function attachDocuments(
+	client: ChattoClient,
+	sources: ChattoMessage[],
+	built: Message[],
+	signal: AbortSignal
+): Promise<void> {
+	let budget = MAX_DOCUMENTS;
+
+	for (let index = sources.length - 1; index >= 0 && budget > 0; index--) {
+		const attachments = documentAttachments(sources[index]).slice(0, budget);
+		for (const attachment of attachments) {
+			const name = attachment.filename || attachment.id;
+			try {
+				const asset = await client.fetchAsset(attachment.assetUrl!.url!, signal);
+				if (!asset || asset.bytes.byteLength > MAX_DOCUMENT_BYTES) continue;
+				const text = await extractDocumentText(new Uint8Array(asset.bytes), name);
+				if (!text) continue;
+				const markdown =
+					text.length > MAX_DOCUMENT_CHARS
+						? `${text.slice(0, MAX_DOCUMENT_CHARS)}\n\n[Cut: the document continues past this point.]`
+						: text;
+				const { content } = documentContextMessage({
+					type: 'document',
+					id: attachment.id,
+					name,
+					markdown,
+					tokens: 0
+				});
+				built[index] = { ...built[index], content: built[index].content + content };
+				budget--;
+			} catch {
+				// An expired URL, a corrupt file, a format the parser gave up on.
+			}
+		}
+	}
+}
+
+/** Every attachment named in the text, whether or not its content is sent, so the model knows a file was there and what its author said it shows. */
+function attachmentLines(message: ChattoMessage): string {
+	return (message.attachments ?? [])
+		.map((attachment) => {
+			const name = attachment.filename || attachment.id;
+			const description = attachment.description?.trim();
+			return description
+				? `\n[Attachment: ${name}. Description: ${description}]`
+				: `\n[Attachment: ${name}]`;
+		})
+		.join('');
 }
 
 /**
@@ -123,7 +191,7 @@ function transcript(
 			return { role: 'assistant' as const, content: body };
 		}
 		const name = authors.get(message.actorId)?.name ?? message.actorId;
-		return { role: 'user' as const, content: `${name}: ${body}` };
+		return { role: 'user' as const, content: `${name}: ${body}${attachmentLines(message)}` };
 	});
 }
 
@@ -137,12 +205,12 @@ export async function buildContext(
 	// The message that called the bot, always: it is the request, and in the
 	// narrowest mode the entire context.
 	const { message: called } = await client.getMessage(reference.roomId, reference.eventId, signal);
-	if (!called?.body?.trim()) return [];
+	if (!called?.body?.trim() && !called?.attachments?.length) return [];
 
 	if (config.context === 'mention') {
 		const authors = await authorsOf(client, [called.actorId], signal);
 		const built = transcript([called], selfId, authors);
-		await attachImages(client, [called], built, signal);
+		await attachFiles(client, config, [called], built, signal);
 		return built;
 	}
 
@@ -189,6 +257,20 @@ export async function buildContext(
 	const sent = full.slice(-keep);
 
 	// After the cut, so nothing is downloaded for a message that will not be sent.
-	await attachImages(client, visible.slice(-keep), sent, signal);
+	await attachFiles(client, config, visible.slice(-keep), sent, signal);
 	return sent;
+}
+
+/** What the owner chose to let through, fetched after the transcript is final. */
+async function attachFiles(
+	client: ChattoClient,
+	config: ChattoConfig,
+	sources: ChattoMessage[],
+	built: Message[],
+	signal: AbortSignal
+): Promise<void> {
+	if (config.attachments.includes('images')) await attachImages(client, sources, built, signal);
+	if (config.attachments.includes('documents')) {
+		await attachDocuments(client, sources, built, signal);
+	}
 }

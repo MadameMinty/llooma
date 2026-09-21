@@ -172,6 +172,18 @@ type RootTranslation = {
 	 */
 	botNeedsAModel: string
 	/**
+	 * A​t​t​a​c​h​m​e​n​t​s​ ​r​e​a​d
+	 */
+	botAttachments: string
+	/**
+	 * E​v​e​r​y​ ​a​t​t​a​c​h​m​e​n​t​ ​i​s​ ​n​a​m​e​d​ ​t​o​ ​t​h​e​ ​m​o​d​e​l​,​ ​w​i​t​h​ ​i​t​s​ ​d​e​s​c​r​i​p​t​i​o​n​.​ ​T​h​e​ ​t​i​c​k​e​d​ ​k​i​n​d​s​ ​a​r​e​ ​s​e​n​t​ ​a​s​ ​w​e​l​l​:​ ​i​m​a​g​e​s​ ​n​e​e​d​ ​a​ ​m​o​d​e​l​ ​t​h​a​t​ ​s​e​e​s​ ​t​h​e​m​,​ ​d​o​c​u​m​e​n​t​s​ ​a​r​e​ ​r​e​a​d​ ​o​n​ ​t​h​i​s​ ​s​e​r​v​e​r​.
+	 */
+	botAttachmentsHint: string
+	/**
+	 * D​o​c​u​m​e​n​t​s​ ​(​P​D​F​,​ ​W​o​r​d​,​ ​s​p​r​e​a​d​s​h​e​e​t​s​,​ ​t​e​x​t​)
+	 */
+	botAttachmentDocuments: string
+	/**
 	 * I​t​ ​m​a​y​ ​n​o​t​ ​p​o​s​t​ ​a​n​y​t​h​i​n​g​:​ ​g​r​a​n​t​ ​i​t​ ​m​e​s​s​a​g​e​.​p​o​s​t​.
 	 */
 	botWarningCannotPost: string
@@ -4548,6 +4560,18 @@ export type TranslationFunctions = {
 	 * Choose a model: this bot cannot run without one.
 	 */
 	botNeedsAModel: () => LocalizedString
+	/**
+	 * Attachments read
+	 */
+	botAttachments: () => LocalizedString
+	/**
+	 * Every attachment is named to the model, with its description. The ticked kinds are sent as well: images need a model that sees them, documents are read on this server.
+	 */
+	botAttachmentsHint: () => LocalizedString
+	/**
+	 * Documents (PDF, Word, spreadsheets, text)
+	 */
+	botAttachmentDocuments: () => LocalizedString
 	/**
 	 * It may not post anything: grant it message.post.
 	 */

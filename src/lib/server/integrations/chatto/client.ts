@@ -25,6 +25,8 @@ export interface ChattoAttachment {
 	contentType?: string;
 	/** Signed, short-lived, and absent when the server has none to offer. */
 	assetUrl?: { url?: string; expiresAt?: string };
+	/** What its author says it shows, for readers who cannot see it. */
+	description?: string;
 }
 
 export interface ChattoMessage {

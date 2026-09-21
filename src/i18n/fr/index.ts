@@ -52,6 +52,10 @@ const fr = extendDictionary(en, {
 	usePersonaPromptHint:
 		'Seul le prompt du persona est utilisé. Ni mémoire, ni conversation de bibliothèque, ni connaissances.',
 	botNeedsAModel: 'Choisissez un modèle : ce bot ne peut pas tourner sans.',
+	botAttachments: 'Pièces jointes lues',
+	botAttachmentsHint:
+		'Chaque pièce jointe est nommée au modèle, avec sa description. Les types cochés sont aussi envoyés : les images demandent un modèle qui voit, les documents sont lus sur ce serveur.',
+	botAttachmentDocuments: 'Documents (PDF, Word, tableurs, texte)',
 	botWarningCannotPost: 'Il ne peut rien écrire : accordez-lui message.post.',
 	botWarningCannotRead:
 		"Il ne peut rien lire : accordez-lui message.read, ou message.read-interactions pour les fils où on l'appelle.",

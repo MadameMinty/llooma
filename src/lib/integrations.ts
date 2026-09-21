@@ -54,6 +54,11 @@ export const BOT_TOOLS = ['webSearch', 'webFetch', 'sendCurrentDate', 'thinking'
 
 export type BotTool = (typeof BOT_TOOLS)[number];
 
+/** Which attachments in the room reach the model. Every attachment is named in the text either way, with its description when it has one. */
+export const BOT_ATTACHMENTS = ['images', 'documents'] as const;
+
+export type BotAttachment = (typeof BOT_ATTACHMENTS)[number];
+
 /** What a connection test found missing: the key works, but part of what the bot is configured to do will fail without a word. */
 export type BotWarning =
 	'cannotPost' | 'cannotRead' | 'cannotPostInThread' | 'recentNeedsFullRead' | 'cannotReact';
@@ -110,6 +115,7 @@ export interface ChattoConfig {
 	contextCount: number;
 	/** What the turn may reach for, limited by what the instance actually offers. */
 	tools: BotTool[];
+	attachments: BotAttachment[];
 	pollSeconds: number;
 }
 
@@ -142,6 +148,7 @@ export function defaultChattoConfig(): ChattoConfig {
 		context: 'recent',
 		contextCount: CONTEXT_COUNT_DEFAULT,
 		tools: ['sendCurrentDate'],
+		attachments: ['images'],
 		pollSeconds: POLL_SECONDS_DEFAULT
 	};
 }
@@ -191,6 +198,9 @@ export function normaliseConfig(kind: IntegrationKind, raw: unknown): Integratio
 		tools: Array.isArray(input.tools)
 			? BOT_TOOLS.filter((tool) => (input.tools as string[]).includes(tool))
 			: base.tools,
+		attachments: Array.isArray(input.attachments)
+			? BOT_ATTACHMENTS.filter((kind) => (input.attachments as string[]).includes(kind))
+			: base.attachments,
 		pollSeconds: clampNumber(
 			input.pollSeconds,
 			POLL_SECONDS_MIN,
