@@ -3,11 +3,6 @@ export type TagPair = {
 	closeTag: string;
 };
 
-export type TagState = {
-	tagPair: TagPair;
-	content: string;
-};
-
 export const THOUGHT_TAG = '<thought>';
 export const END_THOUGHT_TAG = '</thought>';
 export const THINK_TAG = '<think>';

@@ -315,11 +315,6 @@ export function costLookupFor(connectionType: ConnectionType) {
 	return describeProvider(connectionType).costLookup;
 }
 
-/** Whether reading aloud is offered on this kind of connection at all. */
-export function supportsSpeech(connectionType: ConnectionType): boolean {
-	return !!describeProvider(connectionType).speech;
-}
-
 /** Whether a connection talks to an OpenAI-compatible endpoint. */
 export function isOpenAiCompatible(connectionType: ConnectionType): boolean {
 	return describeProvider(connectionType).family === 'openai';

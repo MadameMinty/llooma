@@ -137,14 +137,6 @@ export function boundaryOf(kind: NoteKind): NoteBoundary {
 	return NOTE_KINDS[kind]?.boundary ?? 'none';
 }
 
-export function noteOf(message: Message): ConversationNote | undefined {
-	return message.note;
-}
-
-export function isNote(message: Message): boolean {
-	return message.note !== undefined;
-}
-
 /** Whichever came last wins: a clear after a compaction throws the summary away too, and a compaction after a clear starts from what is left. */
 export function conversationBoundary(messages: Message[]): {
 	index: number;

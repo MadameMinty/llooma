@@ -7,8 +7,6 @@ import {
 	type SystemPrompts
 } from '$lib/settings';
 
-export type SystemPromptsSharing = Sharing;
-
 export interface ResolvedSystemPrompts {
 	prompts: SystemPrompts;
 	editable: boolean;

@@ -22,6 +22,7 @@
 	import KnowledgeModal from '$lib/components/KnowledgeModal.svelte';
 	import SearchModal from '$lib/components/SearchModal.svelte';
 	import Toasts from '$lib/components/Toasts.svelte';
+	import { pruneDrafts } from '$lib/drafts';
 	import { releaseUrl } from '$lib/github';
 	import { loadImages } from '$lib/images';
 	import {
@@ -32,7 +33,7 @@
 		type PwaInstallDialog
 	} from '$lib/install';
 	import { loadIntegrationsConfig } from '$lib/integrationsConfig';
-	import { hydrateStores, refreshStores, settingsStore } from '$lib/localStorage';
+	import { hydrateStores, refreshStores, sessionsStore, settingsStore } from '$lib/localStorage';
 	import { loadMcpConfig } from '$lib/mcpConfig';
 	import { loadServerPersonas } from '$lib/personasConfig';
 	import { loadServerPlaybooks } from '$lib/playbooksConfig';
@@ -299,14 +300,18 @@
 	onMount(async () => {
 		// Fill the stores from the repository.
 		await hydrateStores();
-		await loadServerSearch();
-		await loadWebFetchConfig();
-		await loadServerPrompts();
-		await loadServerChatDefaults();
-		await loadServerPersonas();
-		await loadIntegrationsConfig();
-		await loadMcpConfig();
-		await loadServerPlaybooks();
+		// In parallel: each answers a different endpoint and fills a store of its own,
+		// so in sequence they only added up to eight round trips before the app was usable.
+		await Promise.all([
+			loadServerSearch(),
+			loadWebFetchConfig(),
+			loadServerPrompts(),
+			loadServerChatDefaults(),
+			loadServerPersonas(),
+			loadIntegrationsConfig(),
+			loadMcpConfig(),
+			loadServerPlaybooks()
+		]);
 		// Small by construction: the pictures themselves are fetched one at a time by
 		// the page that shows them.
 		await loadImages();
@@ -327,6 +332,10 @@
 				mobileDefaultApplied: true
 			};
 		}
+
+		// The conversations are hydrated by now, so a draft with no conversation left
+		// is one whose conversation was deleted elsewhere.
+		pruneDrafts(get(sessionsStore).map((session) => session.id));
 
 		booted = true;
 

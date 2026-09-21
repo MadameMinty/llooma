@@ -134,11 +134,6 @@ export function newPersona(id: string = generateRandomId()): Persona {
 	};
 }
 
-export const loadPersona = (id: string): Persona => {
-	const existing = get(personasStore)?.find((p) => p.id === id);
-	return existing ?? newPersona(id);
-};
-
 export const savePersona = (persona: Persona): void => {
 	personasStore.upsert({ ...persona, updatedAt: new Date().toISOString() });
 };

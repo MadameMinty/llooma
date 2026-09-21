@@ -46,9 +46,6 @@ export function newPlaybook(id: string = generateRandomId()): Playbook {
 	};
 }
 
-export const loadPlaybook = (id: string): Playbook =>
-	(get(playbooksStore) ?? []).find((playbook) => playbook.id === id) ?? newPlaybook(id);
-
 export const savePlaybook = (playbook: Playbook): void => {
 	playbooksStore.upsert({ ...playbook, updatedAt: new Date().toISOString() });
 };

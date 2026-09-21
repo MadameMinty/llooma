@@ -27,9 +27,3 @@ export function playbookDigest(playbook: AuthoredPlaybook): string {
 		tags: playbook.tags
 	});
 }
-
-/** The authored fields of a bundle, whatever else it carries. */
-export function bundlePlaybookAuthored(bundle: { playbook: AuthoredPlaybook }): AuthoredPlaybook {
-	const { name, summary, instructions, tags } = bundle.playbook;
-	return { name, summary, instructions, tags };
-}

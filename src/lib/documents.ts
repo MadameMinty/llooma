@@ -62,11 +62,6 @@ export interface DocumentExtraction {
 	warnings: string[];
 }
 
-export function isDocumentFile(name: string): boolean {
-	const lower = name.toLowerCase();
-	return DOCUMENT_EXTENSIONS.some((extension) => lower.endsWith(extension));
-}
-
 /**
  * The parser, loaded on demand. Two builds, and which one is fetched is the
  * privacy story: the slim build has no OCR engine and no CDN addresses in it.

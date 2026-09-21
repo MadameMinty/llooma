@@ -1,4 +1,3 @@
-import { getUnixTime } from 'date-fns';
 import semver from 'semver';
 import { get, writable } from 'svelte/store';
 
@@ -8,6 +7,8 @@ import { settingsStore } from '$lib/localStorage';
 
 import type { LloomaMetadata } from '../routes/api/metadata/+server';
 import { GITHUB_RELEASES_API } from './github';
+
+const unixNow = () => Math.floor(Date.now() / 1000);
 
 const DEV_VERSION_SUFFIX = '-dev';
 const METADATA_ENDPOINT = '/api/metadata';
@@ -49,7 +50,7 @@ export async function checkForUpdates(isUserInitiated = false): Promise<void> {
 	if (!(settings.autoCheckForUpdates === false)) settings.autoCheckForUpdates = true;
 
 	// Unprompted, only if the last check was more than a week ago.
-	const oneWeekAgoInSeconds = getUnixTime(new Date()) - ONE_WEEK_IN_SECONDS;
+	const oneWeekAgoInSeconds = unixNow() - ONE_WEEK_IN_SECONDS;
 	if (!settings.lastUpdateCheck) settings.lastUpdateCheck = oneWeekAgoInSeconds - 1;
 	if (!isUserInitiated && settings.lastUpdateCheck > oneWeekAgoInSeconds) return;
 
@@ -101,7 +102,7 @@ export async function checkForUpdates(isUserInitiated = false): Promise<void> {
 	updateStatusStore.set(status);
 
 	// Stamped, so the next unprompted check waits a week.
-	settings.lastUpdateCheck = getUnixTime(new Date());
+	settings.lastUpdateCheck = unixNow();
 	// The store is in memory, so a reload would leave the panel with nothing to
 	// report next to its timestamp. Only a clean check is recorded: a failed one
 	// must not overwrite an answer that was known to be good.

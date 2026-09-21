@@ -20,10 +20,6 @@ export interface SystemPromptsView {
 // In server mode the resolved config comes from the server (admin sharing).
 const serverConfig = writable<SystemPromptsView | null>(null);
 
-export function setServerSystemPrompts(resolved: SystemPromptsView | null): void {
-	serverConfig.set(resolved);
-}
-
 /** Two screens' worth of one question (what does this instance let you say to the model), resolved by the same rules, so they arrive together rather than racing. */
 export async function loadServerPrompts(): Promise<void> {
 	try {

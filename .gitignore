@@ -26,3 +26,6 @@ tests/*-snapshots/
 
 # Working captures. Only the framed pictures and the composites are kept.
 .screenshots
+
+# pnpm store, local cache
+/.pnpm-store

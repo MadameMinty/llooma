@@ -175,8 +175,3 @@ export interface RunSummary {
 	/** The id of the last event written, so a client knows what it is catching up to. */
 	lastEventId: number;
 }
-
-/** True for the endings after which no further event will ever arrive. */
-export function isFinal(status: RunStatus): boolean {
-	return status !== 'running';
-}

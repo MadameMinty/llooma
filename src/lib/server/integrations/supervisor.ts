@@ -105,11 +105,6 @@ export function ensureIntegrationsStarted(): void {
 	reconcile();
 }
 
-/** Which integrations this process currently has running. For diagnostics. */
-export function runningIntegrationIds(): string[] {
-	return [...running.keys()];
-}
-
 /** Vite replaces this module when it is edited, and the replacement starts with an empty map while the previous copy's timers keep firing: a bot answering twice, and a worker no button can reach. */
 if (import.meta.hot) {
 	import.meta.hot.dispose(() => {

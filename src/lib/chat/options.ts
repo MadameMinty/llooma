@@ -73,8 +73,6 @@ export const LOAD_BOOLEAN_KEYS = [
 	'use_mlock'
 ] as const satisfies readonly LoadKey[];
 
-export type PortableSamplingKey = (typeof PORTABLE_SAMPLING_KEYS)[number];
-export type OllamaSamplingKey = (typeof OLLAMA_SAMPLING_KEYS)[number];
 export type LoadKey = (typeof LOAD_KEYS)[number];
 
 /**
@@ -225,9 +223,4 @@ export function isSystemDefault(options: SamplingOptions | undefined): boolean {
 		} else if (a !== b) return false;
 	}
 	return true;
-}
-
-/** The Ollama-only family is dropped rather than left for the endpoint to complain about. `samplingFrom()` drops it too; this is the same answer one step earlier, so a panel can say which settings will be used. */
-export function samplingKeysFor(isOllama: boolean): readonly SamplingKey[] {
-	return isOllama ? SAMPLING_KEYS : (['num_ctx', ...PORTABLE_SAMPLING_KEYS] as const);
 }
