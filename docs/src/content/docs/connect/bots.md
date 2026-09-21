@@ -147,5 +147,6 @@ The bot runs in the Llooma process, which means one process: an instance behind 
 would poll once per replica. That is the same limit generation already has, and it is fixed the same
 way on the day anyone runs into it.
 
-Chatto's API is experimental before 1.0 and its bot accounts arrived in 0.5. Pin the server version
-you run. When something breaks, it breaks in one small folder.
+Chatto's API is experimental before 1.0 and its bot accounts arrived in 0.5. The integration needs
+`0.5.0-alpha.9` or later, where a bot is identified by its `bot` field. Pin the server version you
+run. When something breaks, it breaks in one small folder.

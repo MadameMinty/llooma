@@ -165,7 +165,7 @@ class ChattoRuntime implements IntegrationRuntime {
 
 		// Never itself, and never another bot: the second keeps two assistants in one
 		// room from talking to each other.
-		if (occurrence.actor?.id === this.#selfId || occurrence.actor?.isBot) {
+		if (occurrence.actor?.id === this.#selfId || occurrence.actor?.bot) {
 			this.#log(`${cause} from a bot, skipped`);
 			this.#claim(occurrence);
 			return;
@@ -225,7 +225,7 @@ class ChattoRuntime implements IntegrationRuntime {
 	#typing(reference: ChattoMessageReference): () => void {
 		const thread = threadFor(this.#record.config.placement, reference);
 		const ping = () =>
-			void this.#client.updateTypingIndicator(reference.roomId, thread, this.#signal).catch(() => {
+			void this.#client.refreshTypingIndicator(reference.roomId, thread, this.#signal).catch(() => {
 				// Decoration. A room that never sees it still gets the answer.
 			});
 
@@ -355,7 +355,7 @@ export const chattoProvider: IntegrationProvider = {
 			const viewer = await new ChattoClient(record.config.baseUrl, token).getViewer();
 			const profile = viewer.user?.profile;
 			if (!profile?.id) return { ok: false, error: 'The server did not identify this key' };
-			if (!profile.isBot) {
+			if (!profile.bot) {
 				// Refused rather than warned: a human key would run the integration as that
 				// person, answering their own mentions as them.
 				return { ok: false, error: 'This key belongs to a person, not to a bot account' };

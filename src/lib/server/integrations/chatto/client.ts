@@ -14,7 +14,8 @@ export interface ChattoUser {
 	id: string;
 	login?: string;
 	displayName?: string;
-	isBot?: boolean;
+	/** Present on a bot account and absent on a person: its presence is what identifies a bot. */
+	bot?: { ownerUserId?: string };
 }
 
 /** A file on a message. Only the fields it takes to decide and to fetch. */
@@ -192,7 +193,11 @@ export class ChattoClient {
 		);
 	}
 
-	async batchGetUsers(userIds: string[], signal?: AbortSignal): Promise<{ users?: ChattoUser[] }> {
+	/** Each user arrives wrapped in a directory entry, beside their roles. */
+	async batchGetUsers(
+		userIds: string[],
+		signal?: AbortSignal
+	): Promise<{ users?: { user?: ChattoUser }[] }> {
 		if (!userIds.length) return { users: [] };
 		return this.#call('chatto.api.v1.UserService/BatchGetUsers', { userIds }, signal);
 	}
@@ -215,20 +220,20 @@ export class ChattoClient {
 		signal?: AbortSignal
 	): Promise<unknown> {
 		return this.#call(
-			'chatto.api.v1.ReactionService/AddReaction',
+			'chatto.api.v1.MessageService/AddReaction',
 			{ roomId, messageEventId, emoji },
 			signal
 		);
 	}
 
 	/** Live-only and short-lived on Chatto's side, so it is a refresh rather than a switch. Membership is all it asks for, not permission to post. */
-	async updateTypingIndicator(
+	async refreshTypingIndicator(
 		roomId: string,
 		threadRootEventId: string | undefined,
 		signal?: AbortSignal
 	): Promise<unknown> {
 		return this.#call(
-			'chatto.api.v1.RoomService/UpdateTypingIndicator',
+			'chatto.api.v1.RoomService/RefreshTypingIndicator',
 			{ roomId, threadRootEventId },
 			signal
 		);

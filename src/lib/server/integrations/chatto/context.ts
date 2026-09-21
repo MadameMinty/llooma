@@ -43,7 +43,8 @@ async function authorsOf(
 	// The API takes a hundred at a time, and a context window will never hold that
 	// many distinct speakers.
 	const { users } = await client.batchGetUsers(unique.slice(0, 100), signal);
-	for (const user of users ?? []) {
+	for (const { user } of users ?? []) {
+		if (!user?.id) continue;
 		authors.set(user.id, { name: user.displayName?.trim() || user.login?.trim() || user.id });
 	}
 	return authors;
