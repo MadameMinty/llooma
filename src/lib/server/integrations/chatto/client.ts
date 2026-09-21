@@ -52,7 +52,7 @@ export interface ChattoTimelinePage {
 
 /** The room arrives as a summary object rather than an id, the one place in this API where a reference is not a bare string. `referenceOf` flattens it, so exactly one function knows. */
 interface WireMessageReference {
-	room?: { id?: string; name?: string };
+	room?: { id?: string; kind?: string; name?: string };
 	eventId?: string;
 	threadRootEventId?: string;
 }
@@ -62,6 +62,8 @@ export interface ChattoMessageReference {
 	roomId: string;
 	eventId: string;
 	threadRootEventId?: string;
+	/** A direct message rather than a channel. */
+	direct: boolean;
 }
 
 /** Chatto raises others for the same account, ignored rather than rejected: a bot that answered every reaction would be one nobody keeps. */
@@ -274,6 +276,7 @@ export function referenceOf(occurrence: ChattoOccurrence): ChattoMessageReferenc
 	return {
 		roomId,
 		eventId: reference.eventId,
-		threadRootEventId: reference.threadRootEventId
+		threadRootEventId: reference.threadRootEventId,
+		direct: reference.room?.kind === 'ROOM_KIND_DM'
 	};
 }

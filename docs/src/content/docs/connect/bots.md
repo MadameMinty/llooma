@@ -99,7 +99,8 @@ room history.
 
 - **Where it was asked.** In a thread if the question was in a thread, in the room otherwise.
 - **Always in a thread.** A question asked in the open gets a thread rooted on it, which is what
-  keeps a busy channel readable. Direct messages have no threads, so this cannot apply there.
+  keeps a busy channel readable. A direct message stays flat: a question asked inside a DM thread is
+  answered in that thread, any other gets its answer in the conversation itself.
 - **Always in the room.** The opposite, with the reply attribution kept so a threaded question still
   comes back visibly linked to what it answers.
 

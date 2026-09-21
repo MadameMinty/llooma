@@ -305,17 +305,21 @@ class ChattoRuntime implements IntegrationRuntime {
 
 /**
  * `auto` answers where it was asked. `thread` roots a thread on a room-level
- * question, which keeps a busy channel readable. `room` always answers in the
- * open. Shared by the answer and the typing indicator, so the room cannot show
- * the bot writing in one place and hear from it in another.
+ * question, which keeps a busy channel readable, and leaves a direct message
+ * flat: a thread per message in a one-to-one conversation is noise, and posting
+ * in one needs a DM-scoped permission most bots do not have. `room` always
+ * answers in the open. Shared by the answer and the typing indicator, so the room
+ * cannot show the bot writing in one place and hear from it in another.
  */
 function threadFor(
 	placement: IntegrationRecord['config']['placement'],
 	reference: ChattoMessageReference
 ): string | undefined {
-	if (placement === 'thread') return reference.threadRootEventId ?? reference.eventId;
-	if (placement === 'auto') return reference.threadRootEventId;
-	return undefined;
+	if (placement === 'room') return undefined;
+	if (placement === 'thread' && !reference.direct) {
+		return reference.threadRootEventId ?? reference.eventId;
+	}
+	return reference.threadRootEventId;
 }
 
 /** The default is what a conversation started by this account would get. The other two replace it: a persona is a whole character, and instructions written here are written knowing they are the whole of it. */
