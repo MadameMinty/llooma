@@ -138,5 +138,4 @@ is longer than anyone expects!
 
 [MIT](LICENSE)
 
-Document reading is powered by [officeparser](https://github.com/harshankur/officeParser) (MIT) and
-[pdf.js](https://mozilla.github.io/pdf.js/) (Apache-2.0).
+Document reading is powered by [anydoc](https://github.com/firecrawl/anydoc) (MIT).

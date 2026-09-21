@@ -145,10 +145,6 @@ export interface Settings {
 	fadeCompactedMessages: boolean;
 	/** Read attached files (PDF, Word, spreadsheets) into the conversation. */
 	documentsEnabled: boolean;
-	/** Run OCR on the pictures inside those files. Off: it is slow and fetches an engine. */
-	documentOcr: boolean;
-	/** Tesseract language code(s) for OCR, e.g. `eng` or `eng+fra`. */
-	documentOcrLanguage: string;
 	/** An instance can offer a starting theme, and that offer stops the first time someone chooses. The stored values alone cannot tell the two apart. */
 	themeChosen: boolean;
 	themeMode: 'system' | 'light' | 'dark';
@@ -294,8 +290,6 @@ export const DEFAULT_SETTINGS: Settings = {
 	showMessageTimestamps: true,
 	fadeCompactedMessages: true,
 	documentsEnabled: true,
-	documentOcr: false,
-	documentOcrLanguage: 'eng',
 	themeChosen: false,
 	themeMode: 'system',
 	themeStyle: 'classic',

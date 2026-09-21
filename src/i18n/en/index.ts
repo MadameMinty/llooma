@@ -201,21 +201,14 @@ const en = {
 	imagesIgnored: '{count:number} {{file|files}} ignored. Only PNG and JPEG images are supported.',
 	documentFailed: '{name:string} could not be read',
 	documentEmpty: 'No text could be read from {name:string}',
-	documentLooksScanned: 'This PDF looks scanned',
-	documentMostlyImages: 'Most of this PDF is images',
-	documentPagesAsImages: 'Send the pages as images',
-	documentPagesAsImagesHelp:
-		'There is no text to extract, only pictures of it. A vision model can read the pages directly, up to {max:number} of them. Turn on OCR in Settings to read them as text instead.',
+	documentEmptyHelp:
+		'Its pages are pictures of text, a scan for instance, and this app does not read pictures as text.',
 	documentsTitle: 'Documents',
 	documentsDescription:
 		'Attach a PDF, a Word file or a spreadsheet and its text goes into the conversation.',
 	documentsToggle: 'Read attached documents',
 	documentsHelp:
-		'PDF, DOCX, PPTX, XLSX, ODT, ODP, ODS, RTF, EPUB, CSV, HTML, Markdown and plain text.',
-	documentOcrToggle: 'Read text inside images (OCR)',
-	documentOcrHelp: 'For scans and pictures of text. Slow, and approximate.',
-	documentOcrLanguage: 'OCR language',
-	documentOcrLanguageHelp: 'Tesseract codes, for example eng or eng+fra.',
+		'PDF, Word, PowerPoint and Excel, old formats included, OpenDocument, RTF, EPUB, CSV, Markdown and plain text. Scanned pages are not read.',
 	deleteKnowledge: 'Delete knowledge',
 	deleteServer: 'Delete server',
 	deleteMessage: 'Delete this message',

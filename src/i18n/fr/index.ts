@@ -216,21 +216,14 @@ const fr = extendDictionary(en, {
 		'{count:number} fichier{{s}} ignoré{{s}}. Seules les images PNG et JPEG sont acceptées.',
 	documentFailed: '{name:string} n’a pas pu être lu',
 	documentEmpty: 'Aucun texte n’a pu être lu dans {name:string}',
-	documentLooksScanned: 'Ce PDF semble être un scan',
-	documentMostlyImages: 'Ce PDF est presque entièrement en images',
-	documentPagesAsImages: 'Envoyer les pages en images',
-	documentPagesAsImagesHelp:
-		'Il n’y a pas de texte à extraire, seulement des images de texte. Un modèle de vision peut lire les pages directement, jusqu’à {max:number}. Activez l’OCR dans les réglages pour les lire en texte à la place.',
+	documentEmptyHelp:
+		"Ses pages sont des images de texte, un scan par exemple, et l'application ne lit pas le texte des images.",
 	documentsTitle: 'Documents',
 	documentsDescription:
 		'Joignez un PDF, un fichier Word ou un tableur et son texte entre dans la conversation.',
 	documentsToggle: 'Lire les documents joints',
 	documentsHelp:
-		'PDF, DOCX, PPTX, XLSX, ODT, ODP, ODS, RTF, EPUB, CSV, HTML, Markdown et texte brut.',
-	documentOcrToggle: 'Lire le texte dans les images (OCR)',
-	documentOcrHelp: 'Pour les scans et les photos de texte. Lent, et approximatif.',
-	documentOcrLanguage: 'Langue de l’OCR',
-	documentOcrLanguageHelp: 'Codes Tesseract, par exemple eng ou eng+fra.',
+		'PDF, Word, PowerPoint et Excel, anciens formats compris, OpenDocument, RTF, EPUB, CSV, Markdown et texte brut. Les pages scannées ne sont pas lues.',
 	downloadModel: 'Télécharger le modèle',
 	edit: 'Éditer',
 	emptyKnowledge: 'Aucune connaissance',

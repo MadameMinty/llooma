@@ -28,12 +28,6 @@ Copy `.env.example` to `.env` and adjust. Everything here is read at startup.
 | Variable                   | Default   | Description                                                                                                         |
 | -------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------- |
 | `PUBLIC_DISABLE_DOCUMENTS` | _(unset)_ | `true` removes document reading instance-wide. The section disappears from settings and no user can turn it back on |
-| `PUBLIC_OCR_CORE_PATH`     | _(unset)_ | Where the OCR engine is served from. Unset, it is fetched from a public CDN on first use                            |
-| `PUBLIC_OCR_LANG_PATH`     | _(unset)_ | Where the OCR language data is served from                                                                          |
-| `PUBLIC_OCR_WORKER_PATH`   | _(unset)_ | Where the OCR worker script is served from                                                                          |
-
-Set the three OCR paths together for an instance that must make no third-party requests. Budget
-roughly 30 MB for the engine and 3 to 11 MB per language.
 
 ## Accounts and storage
 

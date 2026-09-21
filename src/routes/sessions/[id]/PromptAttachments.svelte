@@ -8,14 +8,13 @@
 	import {
 		DOCUMENT_ACCEPT,
 		documentsDisabledByInstance,
-		extractDocument,
-		MAX_PAGES_AS_IMAGES,
-		renderPdfPagesAsImages
+		DocumentWithoutText,
+		extractDocument
 	} from '$lib/documents';
 	import { pickImageFiles, warnRejected } from '$lib/imageFiles';
 	import type { Knowledge } from '$lib/knowledge';
 	import { knowledgeStore, settingsStore } from '$lib/localStorage';
-	import type { Attachment, ImageAttachment } from '$lib/promptAttachments';
+	import type { Attachment } from '$lib/promptAttachments';
 	import { toast } from '$lib/toast';
 	import { generateRandomId } from '$lib/utils';
 
@@ -71,21 +70,12 @@
 		input.click();
 	}
 
-	/** One at a time on purpose: parsing a PDF is the heaviest thing this tab will do, and three at once on a phone is how a browser kills a page. */
+	/** One at a time on purpose: a large file is converted on this thread, and three at once on a phone is how a browser kills a page. */
 	async function readDocuments(files: File[]) {
 		for (const file of files) {
 			reading = [...reading, file.name];
 			try {
-				const result = await extractDocument(file, {
-					ocr: !!$settingsStore.documentOcr,
-					ocrLanguage: $settingsStore.documentOcrLanguage
-				});
-
-				if (result.looksScanned || !result.markdown) {
-					offerPageImages(file, result.markdown.length > 0);
-					continue;
-				}
-
+				const result = await extractDocument(file);
 				attachments = [
 					...attachments,
 					{
@@ -93,65 +83,21 @@
 						id: generateRandomId(),
 						name: file.name,
 						markdown: result.markdown,
-						tokens: result.tokens,
-						pages: result.pages
+						tokens: result.tokens
 					}
 				];
-				// Warnings are not failures: the document is attached, and this says which
-				// parts of it the parser struggled with.
-				if (result.warnings.length) {
-					toast.warning(file.name, { description: result.warnings.slice(0, 3).join('\n') });
-				}
 			} catch (error) {
+				if (error instanceof DocumentWithoutText) {
+					toast.warning($LL.documentEmpty({ name: file.name }), {
+						description: $LL.documentEmptyHelp()
+					});
+					continue;
+				}
 				const message = error instanceof Error ? error.message : String(error);
 				toast.error($LL.documentFailed({ name: file.name }), { description: message });
 			} finally {
 				reading = reading.filter((name) => name !== file.name);
 			}
-		}
-	}
-
-	/**
-	 * Nothing readable came out, which for a PDF almost always means a scan.
-	 *
-	 * Rather than attach an empty document, offer the way that works without an OCR
-	 * engine: the pages as pictures, read by a vision model. Offered, not done,
-	 * because it costs far more context and only pays off if the model can see.
-	 */
-	function offerPageImages(file: File, hadSomeText: boolean) {
-		const isPdf = file.name.toLowerCase().endsWith('.pdf');
-		if (!isPdf) {
-			toast.warning($LL.documentEmpty({ name: file.name }));
-			return;
-		}
-
-		toast.warning(hadSomeText ? $LL.documentMostlyImages() : $LL.documentLooksScanned(), {
-			description: $LL.documentPagesAsImagesHelp({ max: MAX_PAGES_AS_IMAGES }),
-			action: {
-				label: $LL.documentPagesAsImages(),
-				onClick: () => void attachPageImages(file)
-			}
-		});
-	}
-
-	async function attachPageImages(file: File) {
-		reading = [...reading, file.name];
-		try {
-			const pages = await renderPdfPagesAsImages(file);
-			attachments = [
-				...attachments,
-				...pages.map((page): ImageAttachment => ({
-					type: 'image',
-					id: generateRandomId(),
-					name: page.name,
-					dataUrl: page.dataUrl
-				}))
-			];
-		} catch (error) {
-			const message = error instanceof Error ? error.message : String(error);
-			toast.error($LL.documentFailed({ name: file.name }), { description: message });
-		} finally {
-			reading = reading.filter((name) => name !== file.name);
 		}
 	}
 

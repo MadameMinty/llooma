@@ -20,7 +20,6 @@ export default ts.config(
 			// pdf.js, copied out of node_modules by `prepare`. A minified third-party
 			// bundle judged by the rules of hand-written code reports about seventeen
 			// hundred style errors, which buries every real one.
-			'static/vendor/**',
 			'package/**',
 			'**/.DS_Store',
 			'**/.env',

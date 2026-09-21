@@ -1,3 +1,4 @@
+import { readFile } from 'node:fs/promises';
 import { sveltekit } from '@sveltejs/kit/vite';
 import basicSsl from '@vitejs/plugin-basic-ssl';
 import { defineConfig, type Plugin, type ViteDevServer } from 'vite';
@@ -35,8 +36,23 @@ const voiceSocketHost: Plugin = {
 	}
 };
 
+/**
+ * `some.wasm?base64` as a string, for WebAssembly the server needs at hand: the
+ * production image has `build/` and no `node_modules` to read the file from.
+ * Vite's own `?inline` does not apply to `.wasm`, which its wasm loader claims.
+ */
+const wasmBase64: Plugin = {
+	name: 'llooma-wasm-base64',
+	enforce: 'pre',
+	async load(id) {
+		if (!id.endsWith('.wasm?base64')) return null;
+		const bytes = await readFile(id.slice(0, -'?base64'.length));
+		return `export default ${JSON.stringify(bytes.toString('base64'))};`;
+	}
+};
+
 export default defineConfig(({ command }) => ({
-	plugins: [sveltekit(), voiceSocketHost, ...(httpsRequested ? [basicSsl()] : [])],
+	plugins: [sveltekit(), voiceSocketHost, wasmBase64, ...(httpsRequested ? [basicSsl()] : [])],
 	ssr: {
 		/**
 		 * Bundled for the build, and left alone in development, which is why this
@@ -64,22 +80,10 @@ export default defineConfig(({ command }) => ({
 						'eventsource',
 						'eventsource-parser',
 						'pkce-challenge',
-						// Documents a bot reads, parsed on the server. Tesseract stays out: OCR is
-						// never asked for there, and its import only runs when it is.
-						'officeparser',
-						'pdfjs-dist',
-						'@xmldom/xmldom',
-						'fflate',
-						'file-type'
+						// Documents a bot reads, converted on the server.
+						'@firecrawl/anydoc-wasm'
 					]
 				: []
-	},
-	build: {
-		rollupOptions: {
-			// officeparser's optional engines, reached only by dynamic imports this app
-			// never triggers: PDF generation and OCR. Left as imports rather than bundled.
-			external: ['puppeteer', 'tesseract.js']
-		}
 	},
 	preview: {
 		// Every host in preview mode, with the allowed list from the environment.

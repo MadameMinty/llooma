@@ -1,3 +1,4 @@
+import { DocumentWithoutText } from '$lib/documents';
 import type { ChattoConfig } from '$lib/integrations';
 import { documentContextMessage } from '$lib/promptAttachments';
 import { extractDocumentText, isReadableDocument } from '$lib/server/documents';
@@ -100,7 +101,6 @@ async function attachDocuments(
 				const asset = await client.fetchAsset(attachment.assetUrl!.url!, signal);
 				if (!asset || asset.bytes.byteLength > MAX_DOCUMENT_BYTES) continue;
 				const text = await extractDocumentText(new Uint8Array(asset.bytes), name);
-				if (!text) continue;
 				const markdown =
 					text.length > MAX_DOCUMENT_CHARS
 						? `${text.slice(0, MAX_DOCUMENT_CHARS)}\n\n[Cut: the document continues past this point.]`
@@ -114,8 +114,15 @@ async function attachDocuments(
 				});
 				built[index] = { ...built[index], content: built[index].content + content };
 				budget--;
-			} catch {
-				// An expired URL, a corrupt file, a format the parser gave up on.
+			} catch (error) {
+				// Said, so the model does not answer about a document it never read. Anything
+				// else, an expired URL or a file the parser gave up on, leaves the line naming it.
+				if (error instanceof DocumentWithoutText) {
+					built[index] = {
+						...built[index],
+						content: `${built[index].content}\n[${name} has no text that could be read: its pages are pictures.]`
+					};
+				}
 			}
 		}
 	}

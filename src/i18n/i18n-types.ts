@@ -757,22 +757,9 @@ type RootTranslation = {
 	 */
 	documentEmpty: RequiredParams<'name'>
 	/**
-	 * T​h​i​s​ ​P​D​F​ ​l​o​o​k​s​ ​s​c​a​n​n​e​d
+	 * I​t​s​ ​p​a​g​e​s​ ​a​r​e​ ​p​i​c​t​u​r​e​s​ ​o​f​ ​t​e​x​t​,​ ​a​ ​s​c​a​n​ ​f​o​r​ ​i​n​s​t​a​n​c​e​,​ ​a​n​d​ ​t​h​i​s​ ​a​p​p​ ​d​o​e​s​ ​n​o​t​ ​r​e​a​d​ ​p​i​c​t​u​r​e​s​ ​a​s​ ​t​e​x​t​.
 	 */
-	documentLooksScanned: string
-	/**
-	 * M​o​s​t​ ​o​f​ ​t​h​i​s​ ​P​D​F​ ​i​s​ ​i​m​a​g​e​s
-	 */
-	documentMostlyImages: string
-	/**
-	 * S​e​n​d​ ​t​h​e​ ​p​a​g​e​s​ ​a​s​ ​i​m​a​g​e​s
-	 */
-	documentPagesAsImages: string
-	/**
-	 * T​h​e​r​e​ ​i​s​ ​n​o​ ​t​e​x​t​ ​t​o​ ​e​x​t​r​a​c​t​,​ ​o​n​l​y​ ​p​i​c​t​u​r​e​s​ ​o​f​ ​i​t​.​ ​A​ ​v​i​s​i​o​n​ ​m​o​d​e​l​ ​c​a​n​ ​r​e​a​d​ ​t​h​e​ ​p​a​g​e​s​ ​d​i​r​e​c​t​l​y​,​ ​u​p​ ​t​o​ ​{​m​a​x​}​ ​o​f​ ​t​h​e​m​.​ ​T​u​r​n​ ​o​n​ ​O​C​R​ ​i​n​ ​S​e​t​t​i​n​g​s​ ​t​o​ ​r​e​a​d​ ​t​h​e​m​ ​a​s​ ​t​e​x​t​ ​i​n​s​t​e​a​d​.
-	 * @param {number} max
-	 */
-	documentPagesAsImagesHelp: RequiredParams<'max'>
+	documentEmptyHelp: string
 	/**
 	 * D​o​c​u​m​e​n​t​s
 	 */
@@ -786,25 +773,9 @@ type RootTranslation = {
 	 */
 	documentsToggle: string
 	/**
-	 * P​D​F​,​ ​D​O​C​X​,​ ​P​P​T​X​,​ ​X​L​S​X​,​ ​O​D​T​,​ ​O​D​P​,​ ​O​D​S​,​ ​R​T​F​,​ ​E​P​U​B​,​ ​C​S​V​,​ ​H​T​M​L​,​ ​M​a​r​k​d​o​w​n​ ​a​n​d​ ​p​l​a​i​n​ ​t​e​x​t​.
+	 * P​D​F​,​ ​W​o​r​d​,​ ​P​o​w​e​r​P​o​i​n​t​ ​a​n​d​ ​E​x​c​e​l​,​ ​o​l​d​ ​f​o​r​m​a​t​s​ ​i​n​c​l​u​d​e​d​,​ ​O​p​e​n​D​o​c​u​m​e​n​t​,​ ​R​T​F​,​ ​E​P​U​B​,​ ​C​S​V​,​ ​M​a​r​k​d​o​w​n​ ​a​n​d​ ​p​l​a​i​n​ ​t​e​x​t​.​ ​S​c​a​n​n​e​d​ ​p​a​g​e​s​ ​a​r​e​ ​n​o​t​ ​r​e​a​d​.
 	 */
 	documentsHelp: string
-	/**
-	 * R​e​a​d​ ​t​e​x​t​ ​i​n​s​i​d​e​ ​i​m​a​g​e​s​ ​(​O​C​R​)
-	 */
-	documentOcrToggle: string
-	/**
-	 * F​o​r​ ​s​c​a​n​s​ ​a​n​d​ ​p​i​c​t​u​r​e​s​ ​o​f​ ​t​e​x​t​.​ ​S​l​o​w​,​ ​a​n​d​ ​a​p​p​r​o​x​i​m​a​t​e​.
-	 */
-	documentOcrHelp: string
-	/**
-	 * O​C​R​ ​l​a​n​g​u​a​g​e
-	 */
-	documentOcrLanguage: string
-	/**
-	 * T​e​s​s​e​r​a​c​t​ ​c​o​d​e​s​,​ ​f​o​r​ ​e​x​a​m​p​l​e​ ​e​n​g​ ​o​r​ ​e​n​g​+​f​r​a​.
-	 */
-	documentOcrLanguageHelp: string
 	/**
 	 * D​e​l​e​t​e​ ​k​n​o​w​l​e​d​g​e
 	 */
@@ -5137,21 +5108,9 @@ export type TranslationFunctions = {
 	 */
 	documentEmpty: (arg: { name: string }) => LocalizedString
 	/**
-	 * This PDF looks scanned
+	 * Its pages are pictures of text, a scan for instance, and this app does not read pictures as text.
 	 */
-	documentLooksScanned: () => LocalizedString
-	/**
-	 * Most of this PDF is images
-	 */
-	documentMostlyImages: () => LocalizedString
-	/**
-	 * Send the pages as images
-	 */
-	documentPagesAsImages: () => LocalizedString
-	/**
-	 * There is no text to extract, only pictures of it. A vision model can read the pages directly, up to {max} of them. Turn on OCR in Settings to read them as text instead.
-	 */
-	documentPagesAsImagesHelp: (arg: { max: number }) => LocalizedString
+	documentEmptyHelp: () => LocalizedString
 	/**
 	 * Documents
 	 */
@@ -5165,25 +5124,9 @@ export type TranslationFunctions = {
 	 */
 	documentsToggle: () => LocalizedString
 	/**
-	 * PDF, DOCX, PPTX, XLSX, ODT, ODP, ODS, RTF, EPUB, CSV, HTML, Markdown and plain text.
+	 * PDF, Word, PowerPoint and Excel, old formats included, OpenDocument, RTF, EPUB, CSV, Markdown and plain text. Scanned pages are not read.
 	 */
 	documentsHelp: () => LocalizedString
-	/**
-	 * Read text inside images (OCR)
-	 */
-	documentOcrToggle: () => LocalizedString
-	/**
-	 * For scans and pictures of text. Slow, and approximate.
-	 */
-	documentOcrHelp: () => LocalizedString
-	/**
-	 * OCR language
-	 */
-	documentOcrLanguage: () => LocalizedString
-	/**
-	 * Tesseract codes, for example eng or eng+fra.
-	 */
-	documentOcrLanguageHelp: () => LocalizedString
 	/**
 	 * Delete knowledge
 	 */

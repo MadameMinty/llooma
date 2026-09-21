@@ -6,7 +6,8 @@ sidebar:
 ---
 
 Attach a file from the composer's _Add context_ menu and its text joins the conversation. PDF,
-DOCX, PPTX, XLSX, ODT, ODP, ODS, RTF, EPUB, CSV, HTML, Markdown and plain text.
+Word, PowerPoint and Excel, the old `.doc`, `.ppt` and `.xls` included, OpenDocument, RTF, EPUB,
+CSV, Markdown and plain text.
 
 ## Nothing is uploaded
 
@@ -18,21 +19,24 @@ you already chose.
 Which also means the feature works the same on a laptop with no server behind it as on a
 self-hosted instance, and works offline.
 
+The one exception is a [bot](/connect/bots/): a file posted in a chat room is read by the Llooma
+server, since that is where the bot runs. Same reader, same output.
+
 ## What happens, step by step
 
 1. You pick a file. Nothing is sent anywhere.
 2. A pill appears with the file's name and a spinner. Large PDFs take a few seconds.
 3. The file is parsed in the browser and turned into Markdown, so headings, lists and tables
    survive rather than collapsing into a wall of text.
-4. The pill fills in with the name and the page count.
+4. The pill fills in with the name.
 5. When you send your message, the extracted text goes out as a context block ahead of it, the
    same envelope [knowledge](/chat/) uses.
 6. The conversation shows the pill, not the text. A hundred pages of Markdown unrolled in the
    thread would bury the conversation. The text is still in the message: still searchable, still
    exported, still counted by the load meter.
 
-Files are read one at a time even when you attach several. Parsing a PDF is the heaviest thing
-the tab will do, and three at once is how a phone kills a page.
+Files are read one at a time even when you attach several: the conversion runs on the page itself,
+and three large files at once is how a phone kills a page.
 
 ## Keeping one
 
@@ -43,83 +47,24 @@ once should not leave anything behind.
 
 ## What does the reading
 
-The parser is [**officeparser**](https://github.com/harshankur/officeParser) by
-[Harsh Ankur](https://github.com/harshankur), MIT licensed. It handles the whole list of formats
-above and emits Markdown directly, which is the reason headings and tables survive the trip into the
-conversation. Llooma bundles it and calls it in the browser; the project deserves the credit for
-everything on this page working at all.
+The reader is [**anydoc**](https://github.com/firecrawl/anydoc) by
+[Firecrawl](https://firecrawl.dev), MIT licensed, written in Rust and compiled to WebAssembly. Every
+format goes through one document model and one Markdown writer, so headings, lists, tables and
+footnotes come out the same whatever went in. Llooma calls it in the browser, and the WebAssembly
+module (about 2 MB compressed) is fetched the first time a document is attached, never before.
 
-Two builds of it exist, and which one is fetched is the whole privacy story:
+anydoc can send a scanned PDF to Firecrawl's hosted OCR. Llooma does not use that option: the
+module it loads has no network access, and no file ever leaves the machine it was picked on.
 
-- **slim**, used by default. No OCR engine, and no remote addresses in it at all.
-- **full**, fetched only when you turn OCR on. This is the build that carries Tesseract.
+## When a document has no text in it
 
-PDFs additionally go through [pdf.js](https://mozilla.github.io/pdf.js/) (Apache-2.0) for page
-rendering, whose worker is served from your own origin. Both are loaded on demand, so an instance
-with documents switched off downloads neither.
+A scanned document contains pictures of words, not words. Llooma does not read text out of
+pictures, so it says the file has no text and attaches nothing. A PDF with even one scanned page is
+refused whole, a current limit of anydoc tracked in
+[its issue #144](https://github.com/firecrawl/anydoc/issues/144).
 
-## When a PDF has no text in it
-
-A scanned document contains pictures of words, not words. It parses perfectly and yields nothing.
-
-Rather than attach an empty document, Llooma says so and offers two ways forward.
-
-### The vision fallback
-
-Offered on the spot, as an action on the warning: **send the pages as images**. The pages are
-rendered and attached as images, and a vision model reads them directly.
-
-- capped at **10 pages**, because each page is a full-size image and a hundred of them would
-  exhaust both the context window and the tab's memory
-- it needs a vision model on the conversation, and costs far more context than text would
-- it needs nothing installed, downloaded or configured
-
-This is offered, never automatic: it is a different and more expensive way to answer the same
-question, and that is a choice worth leaving to you.
-
-### OCR
-
-The other way is to read the text out of the images. See below.
-
-## OCR
-
-Off by default, under _Settings → Tools → Documents_. Three things to know before turning it on,
-and they are the reason it is off:
-
-**It is slow.** A few seconds per page. A long scan is a long wait.
-
-**It is approximate.** Tables and multi-column layouts come out flattened. Treat the result as a
-readable transcript, not as a faithful copy.
-
-**It downloads an engine.** On first use, the OCR engine and the language data for your chosen
-languages are fetched. Unless the instance hosts them itself (see below), they come from a public
-CDN. That is a request to a third party, from a feature that otherwise makes none, which is
-exactly why this is a switch you throw rather than a default you discover.
-
-With OCR off, none of that code is ever downloaded: the reader Llooma loads is a build with no
-OCR engine and no remote addresses in it at all.
-
-Set the languages with Tesseract codes: `eng`, `fra`, `deu`. Combine with a plus sign, `eng+fra`.
-Each language is a separate download.
-
-## Hosting the OCR engine yourself
-
-For an instance with no internet access, or one that refuses third-party requests on principle,
-serve the files and point Llooma at them:
-
-```shell
-PUBLIC_OCR_CORE_PATH=/vendor/tesseract-core
-PUBLIC_OCR_LANG_PATH=/vendor/tesseract-lang
-PUBLIC_OCR_WORKER_PATH=/vendor/tesseract/worker.min.js
-```
-
-Take the files from `tesseract.js-core` (all four WebAssembly variants: which one loads depends on
-the visitor's processor) and from the `@tesseract.js-data` language packages. Budget roughly 30 MB
-for the engine and 3 to 11 MB per language, depending on whether you take the fast or the standard
-training data.
-
-The pdf.js worker needs no configuration: it is copied into the app's own `static/` folder at
-install time and served from your origin, so reading a PDF never reaches out either.
+To use a scan anyway, take screenshots of the pages and attach them as images: a vision model reads
+them directly.
 
 ## Turning it off
 
@@ -160,7 +105,7 @@ pretend to offer it today.
 
 If enough people want it, the shape it would take is deliberately modest. Keyword search over the
 attached documents, ranked, no embedding model to pick and no vector store to run, which means it
-keeps working offline and needs no setup. The parser already emits chunks with their headings, so
+keeps working offline and needs no setup. The Markdown already carries the document's headings, so
 the groundwork exists. Vector search would only follow if that proved genuinely insufficient.
 
 Until then, the honest boundary is the one above: a document too large for the model's window is
