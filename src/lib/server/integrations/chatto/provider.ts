@@ -127,6 +127,12 @@ class ChattoRuntime implements IntegrationRuntime {
 		const reference = referenceOf(occurrence);
 		const first = claimSeen(this.#record.id, `occurrence:${occurrence.id}`);
 		const second = reference ? claimSeen(this.#record.id, `event:${reference.eventId}`) : true;
+		// Every occurrence dealt with, answered or not: one left unread stays unread.
+		if (first && occurrence.unread !== false) {
+			void this.#client.markNotificationRead(occurrence.id, this.#signal).catch(() => {
+				// Housekeeping on the far end. Failing it changes nothing here.
+			});
+		}
 		return first && second;
 	}
 
@@ -197,9 +203,6 @@ class ChattoRuntime implements IntegrationRuntime {
 		}
 
 		await this.#answer(occurrence);
-		void this.#client.markNotificationRead(occurrence.id, this.#signal).catch(() => {
-			// Housekeeping on the far end. Failing it changes nothing here.
-		});
 	}
 
 	#log(message: string): void {

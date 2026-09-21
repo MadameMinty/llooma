@@ -79,6 +79,7 @@ export type ActivatingCause = (typeof ACTIVATING_CAUSES)[number];
 export interface ChattoOccurrence {
 	id: string;
 	createdAt?: string;
+	unread?: boolean;
 	actor?: ChattoUser;
 	signal?: Partial<Record<ActivatingCause, { message?: WireMessageReference }>> &
 		Record<string, unknown>;
@@ -149,7 +150,7 @@ export class ChattoClient {
 		);
 	}
 
-	/** Mark one occurrence read, so the bot's own unread count does not grow forever. */
+	/** Mark one occurrence read, so the bot's own unread count does not grow forever. Nothing on this side reads the flag back. */
 	async markNotificationRead(notificationId: string, signal?: AbortSignal): Promise<unknown> {
 		return this.#call(
 			'chatto.api.v1.NotificationService/MarkNotificationRead',
