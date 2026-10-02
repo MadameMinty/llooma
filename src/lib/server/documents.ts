@@ -28,7 +28,7 @@ export function isReadableDocument(name: string): boolean {
 	return !documentsDisabledByInstance && isDocumentName(name);
 }
 
-/** The server's reading of a document that reached it from elsewhere, a bot's chat room above all. Throws `DocumentWithoutText` for a scan. */
-export async function extractDocumentText(bytes: Uint8Array, name: string): Promise<string> {
-	return documentMarkdown(await loadOnServer(), bytes, name);
+/** The server's reading of a document that reached it from elsewhere, a bot's chat room above all. Throws what `documentMarkdown` throws. */
+export function extractDocumentText(bytes: Uint8Array, name: string): Promise<string> {
+	return documentMarkdown(loadOnServer, bytes, name);
 }

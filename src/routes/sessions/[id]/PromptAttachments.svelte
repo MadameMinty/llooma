@@ -6,10 +6,11 @@
 	import FieldCheckbox from '$lib/components/FieldCheckbox.svelte';
 	import Menu from '$lib/components/Menu.svelte';
 	import {
-		DOCUMENT_ACCEPT,
 		documentsDisabledByInstance,
 		DocumentWithoutText,
-		extractDocument
+		extractDocument,
+		isDocumentName,
+		UnreadableBinary
 	} from '$lib/documents';
 	import { pickImageFiles, warnRejected } from '$lib/imageFiles';
 	import type { Knowledge } from '$lib/knowledge';
@@ -61,7 +62,6 @@
 	function pickDocuments() {
 		const input = window.document.createElement('input');
 		input.type = 'file';
-		input.accept = DOCUMENT_ACCEPT;
 		input.multiple = true;
 		input.onchange = (event) => {
 			const files = (event.target as HTMLInputElement).files;
@@ -86,11 +86,18 @@
 						tokens: result.tokens
 					}
 				];
+				if (!isDocumentName(file.name)) {
+					toast.warning($LL.documentReadAsText({ name: file.name }));
+				}
 			} catch (error) {
 				if (error instanceof DocumentWithoutText) {
 					toast.warning($LL.documentEmpty({ name: file.name }), {
 						description: $LL.documentEmptyHelp()
 					});
+					continue;
+				}
+				if (error instanceof UnreadableBinary) {
+					toast.error($LL.documentBinary({ name: file.name }));
 					continue;
 				}
 				const message = error instanceof Error ? error.message : String(error);

@@ -761,6 +761,16 @@ type RootTranslation = {
 	 */
 	documentEmptyHelp: string
 	/**
+	 * {​n​a​m​e​}​ ​i​s​ ​a​ ​b​i​n​a​r​y​ ​f​i​l​e​ ​a​n​d​ ​c​a​n​n​o​t​ ​b​e​ ​r​e​a​d
+	 * @param {string} name
+	 */
+	documentBinary: RequiredParams<'name'>
+	/**
+	 * {​n​a​m​e​}​ ​w​a​s​ ​r​e​a​d​ ​a​s​ ​p​l​a​i​n​ ​t​e​x​t
+	 * @param {string} name
+	 */
+	documentReadAsText: RequiredParams<'name'>
+	/**
 	 * D​o​c​u​m​e​n​t​s
 	 */
 	documentsTitle: string
@@ -5111,6 +5121,14 @@ export type TranslationFunctions = {
 	 * Its pages are pictures of text, a scan for instance, and this app does not read pictures as text.
 	 */
 	documentEmptyHelp: () => LocalizedString
+	/**
+	 * {name} is a binary file and cannot be read
+	 */
+	documentBinary: (arg: { name: string }) => LocalizedString
+	/**
+	 * {name} was read as plain text
+	 */
+	documentReadAsText: (arg: { name: string }) => LocalizedString
 	/**
 	 * Documents
 	 */

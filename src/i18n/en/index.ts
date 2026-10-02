@@ -203,6 +203,8 @@ const en = {
 	documentEmpty: 'No text could be read from {name:string}',
 	documentEmptyHelp:
 		'Its pages are pictures of text, a scan for instance, and this app does not read pictures as text.',
+	documentBinary: '{name:string} is a binary file and cannot be read',
+	documentReadAsText: '{name:string} was read as plain text',
 	documentsTitle: 'Documents',
 	documentsDescription:
 		'Attach a PDF, a Word file or a spreadsheet and its text goes into the conversation.',

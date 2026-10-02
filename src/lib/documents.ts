@@ -14,7 +14,7 @@ import { env } from '$env/dynamic/public';
 /** Instance-wide off switch. Read at build time like every other `PUBLIC_` flag, so nothing running in the page can talk it out of it. */
 export const documentsDisabledByInstance = env.PUBLIC_DISABLE_DOCUMENTS === 'true';
 
-/** Extensions offered in the file picker, and read by a bot. */
+/** Extensions read as documents, and the ones a bot reads at all. */
 export const DOCUMENT_EXTENSIONS = [
 	'.pdf',
 	'.doc',
@@ -33,11 +33,61 @@ export const DOCUMENT_EXTENSIONS = [
 	'.txt'
 ] as const;
 
-export const DOCUMENT_ACCEPT = DOCUMENT_EXTENSIONS.join(',');
+/** Refused by name, before any bytes are looked at. Images belong in *Add image*. */
+export const BINARY_EXTENSIONS = [
+	'.exe',
+	'.dll',
+	'.so',
+	'.dylib',
+	'.app',
+	'.dmg',
+	'.pkg',
+	'.msi',
+	'.bin',
+	'.o',
+	'.a',
+	'.class',
+	'.pyc',
+	'.wasm',
+	'.zip',
+	'.tar',
+	'.gz',
+	'.tgz',
+	'.bz2',
+	'.xz',
+	'.7z',
+	'.rar',
+	'.iso',
+	'.img',
+	'.mp3',
+	'.mp4',
+	'.mov',
+	'.avi',
+	'.mkv',
+	'.wav',
+	'.flac',
+	'.png',
+	'.jpg',
+	'.jpeg',
+	'.gif',
+	'.webp',
+	'.bmp',
+	'.tiff',
+	'.heic',
+	'.avif',
+	'.ico',
+	'.woff',
+	'.woff2',
+	'.ttf',
+	'.otf',
+	'.sqlite',
+	'.db',
+	'.parquet'
+] as const;
 
 export type Anydoc = typeof import('@firecrawl/anydoc-wasm');
 
-/** A document with no text in it: a scan, or pages that are pictures of text. Said to the person rather than attached empty. */
+/** No text in it: a scan, or an empty file. */
 export class DocumentWithoutText extends Error {
 	constructor(name: string) {
 		super(`${name} has no text to read`);
@@ -45,21 +95,59 @@ export class DocumentWithoutText extends Error {
 	}
 }
 
-export function isDocumentName(name: string): boolean {
+/** A file that is not text and that anydoc cannot read either. */
+export class UnreadableBinary extends Error {
+	constructor(name: string) {
+		super(`${name} is a binary file`);
+		this.name = 'UnreadableBinary';
+	}
+}
+
+function hasExtension(name: string, extensions: readonly string[]): boolean {
 	const lower = name.toLowerCase();
-	return DOCUMENT_EXTENSIONS.some((extension) => lower.endsWith(extension));
+	return extensions.some((extension) => lower.endsWith(extension));
+}
+
+export function isDocumentName(name: string): boolean {
+	return hasExtension(name, DOCUMENT_EXTENSIONS);
+}
+
+export function isBinaryName(name: string): boolean {
+	return hasExtension(name, BINARY_EXTENSIONS);
+}
+
+const SNIFF_BYTES = 8192;
+
+/** True when the first 8 KiB decode as UTF-8 and hold no NUL byte. */
+export function looksLikeText(bytes: Uint8Array): boolean {
+	const sample = bytes.subarray(0, SNIFF_BYTES);
+	if (sample.includes(0)) return false;
+	try {
+		new TextDecoder('utf-8', { fatal: true }).decode(sample, { stream: true });
+		return true;
+	} catch {
+		return false;
+	}
 }
 
 /**
- * Markdown from a document's bytes. Throws `DocumentWithoutText` for a scan,
- * and anydoc's own error for a file it cannot convert.
+ * Markdown from a document's bytes. By name first: a known document goes to
+ * anydoc, a known binary is refused. Anything else is read as text when its
+ * bytes allow it, and handed to anydoc otherwise, so a renamed PDF still reads.
  *
- * Markdown and plain text are already what a model reads. CSV has no signature
- * to detect it by, so it is named; every other format is read from the bytes.
+ * anydoc is loaded only when needed. Throws `DocumentWithoutText`,
+ * `UnreadableBinary`, or anydoc's own error.
  */
-export function documentMarkdown(anydoc: Anydoc, bytes: Uint8Array, name: string): string {
+export async function documentMarkdown(
+	load: () => Promise<Anydoc>,
+	bytes: Uint8Array,
+	name: string
+): Promise<string> {
+	if (isBinaryName(name)) throw new UnreadableBinary(name);
+
 	const lower = name.toLowerCase();
-	if (lower.endsWith('.md') || lower.endsWith('.txt')) {
+	const known = isDocumentName(name) && !lower.endsWith('.md') && !lower.endsWith('.txt');
+	if (!known && looksLikeText(bytes)) {
 		const text = new TextDecoder().decode(bytes).trim();
 		if (!text) throw new DocumentWithoutText(name);
 		return text;
@@ -67,9 +155,12 @@ export function documentMarkdown(anydoc: Anydoc, bytes: Uint8Array, name: string
 
 	let markdown: string;
 	try {
+		const anydoc = await load();
 		markdown = anydoc.toMarkdownBytes(bytes, lower.endsWith('.csv') ? 'csv' : undefined).trim();
 	} catch (error) {
-		if ((error as { code?: string }).code === 'needsOcr') throw new DocumentWithoutText(name);
+		const code = (error as { code?: string }).code;
+		if (code === 'needsOcr') throw new DocumentWithoutText(name);
+		if (code === 'unsupported') throw new UnreadableBinary(name);
 		throw error;
 	}
 	if (!markdown) throw new DocumentWithoutText(name);
@@ -100,9 +191,12 @@ function loadInBrowser(): Promise<Anydoc> {
 	return browserAnydoc;
 }
 
-/** In the browser. Throws `DocumentWithoutText` for a scan, and anything else for a file that cannot be read. */
+/** In the browser. Throws what `documentMarkdown` throws. */
 export async function extractDocument(file: File): Promise<DocumentExtraction> {
-	const anydoc = await loadInBrowser();
-	const markdown = documentMarkdown(anydoc, new Uint8Array(await file.arrayBuffer()), file.name);
+	const markdown = await documentMarkdown(
+		loadInBrowser,
+		new Uint8Array(await file.arrayBuffer()),
+		file.name
+	);
 	return { markdown, tokens: Math.ceil(markdown.length / 3.7) };
 }

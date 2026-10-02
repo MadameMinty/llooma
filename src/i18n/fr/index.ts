@@ -218,6 +218,8 @@ const fr = extendDictionary(en, {
 	documentEmpty: 'Aucun texte n’a pu être lu dans {name:string}',
 	documentEmptyHelp:
 		"Ses pages sont des images de texte, un scan par exemple, et l'application ne lit pas le texte des images.",
+	documentBinary: '{name:string} est un fichier binaire et ne peut pas être lu',
+	documentReadAsText: '{name:string} a été lu comme du texte brut',
 	documentsTitle: 'Documents',
 	documentsDescription:
 		'Joignez un PDF, un fichier Word ou un tableur et son texte entre dans la conversation.',
