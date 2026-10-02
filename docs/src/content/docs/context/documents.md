@@ -9,6 +9,11 @@ Attach a file from the composer's _Add context_ menu and its text joins the conv
 Word, PowerPoint and Excel, the old `.doc`, `.ppt` and `.xls` included, OpenDocument, RTF, EPUB,
 CSV, Markdown and plain text.
 
+Any other file is read as plain text when its bytes are text, source code or a config file for
+instance, and a warning says so. A binary file is refused: a program, an archive, a picture named
+as a document. A document with the wrong extension still reads, since the format is detected from
+the bytes.
+
 ## Nothing is uploaded
 
 The file is read **in your browser**. Not on the server, not by a provider, not by a third-party
