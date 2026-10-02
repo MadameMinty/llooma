@@ -17,7 +17,7 @@ import { generateRandomId } from '$lib/utils';
  */
 
 /** The `accept` attribute for a file input, matching `IMAGE_INPUT_TYPES`. */
-export const IMAGE_INPUT_ACCEPT = '.png,.jpg,.jpeg,image/png,image/jpeg';
+export const IMAGE_INPUT_ACCEPT = 'image/png,image/jpeg';
 
 /** One file read, or nothing when it could not be read. */
 function readOne(file: File, name: string): Promise<ImageAttachment | null> {
